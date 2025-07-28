@@ -1,5 +1,6 @@
-import { type Wine, type InsertWine, type CellarColumn, type InsertCellarColumn } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { type Wine, type InsertWine, type CellarColumn, type InsertCellarColumn, wines, cellarColumns } from "@shared/schema";
+import { db } from "./db";
+import { eq, ilike, or, and } from "drizzle-orm";
 
 export interface IStorage {
   // Wine operations
@@ -24,149 +25,133 @@ export interface IStorage {
   getTotalCollectionValue(): Promise<number>;
 }
 
-export class MemStorage implements IStorage {
-  private wines: Map<string, Wine>;
-  private cellarColumns: Map<string, CellarColumn>;
-
+export class DatabaseStorage implements IStorage {
   constructor() {
-    this.wines = new Map();
-    this.cellarColumns = new Map();
     this.initializeCellarColumns();
   }
 
-  private initializeCellarColumns() {
-    const columns = ['A', 'B', 'C', 'D', 'E', 'F'];
-    columns.forEach(label => {
-      const id = randomUUID();
-      const column: CellarColumn = {
-        id,
-        label,
-        layers: 4
-      };
-      this.cellarColumns.set(id, column);
-    });
+  private async initializeCellarColumns() {
+    const existingColumns = await db.select().from(cellarColumns);
+    if (existingColumns.length === 0) {
+      const columnLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
+      for (const label of columnLabels) {
+        await db.insert(cellarColumns).values({
+          label,
+          layers: 4
+        });
+      }
+    }
   }
 
   // Wine operations
   async getWine(id: string): Promise<Wine | undefined> {
-    return this.wines.get(id);
+    const [wine] = await db.select().from(wines).where(eq(wines.id, id));
+    return wine || undefined;
   }
 
   async getAllWines(): Promise<Wine[]> {
-    return Array.from(this.wines.values()).sort((a, b) => {
-      if (a.createdAt && b.createdAt) {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-      return 0;
-    });
+    return await db.select().from(wines).orderBy(wines.createdAt);
   }
 
   async getWinesByLocation(column: string, layer: number): Promise<Wine[]> {
-    return Array.from(this.wines.values()).filter(
-      wine => wine.column === column && wine.layer === layer
-    );
+    return await db.select().from(wines)
+      .where(and(eq(wines.column, column), eq(wines.layer, layer)));
   }
 
   async createWine(insertWine: InsertWine): Promise<Wine> {
-    const id = randomUUID();
-    const wine: Wine = {
-      ...insertWine,
-      id,
-      producer: insertWine.producer || null,
-      year: insertWine.year || null,
-      region: insertWine.region || null,
-      price: insertWine.price || null,
-      notes: insertWine.notes || null,
-      createdAt: new Date(),
-    };
-    this.wines.set(id, wine);
+    const [wine] = await db
+      .insert(wines)
+      .values(insertWine)
+      .returning();
     return wine;
   }
 
   async updateWine(id: string, updateData: Partial<InsertWine>): Promise<Wine | undefined> {
-    const existingWine = this.wines.get(id);
-    if (!existingWine) return undefined;
-
-    const updatedWine: Wine = {
-      ...existingWine,
-      ...updateData,
-    };
-    this.wines.set(id, updatedWine);
-    return updatedWine;
+    const [wine] = await db
+      .update(wines)
+      .set(updateData)
+      .where(eq(wines.id, id))
+      .returning();
+    return wine || undefined;
   }
 
   async deleteWine(id: string): Promise<boolean> {
-    return this.wines.delete(id);
+    const result = await db.delete(wines).where(eq(wines.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   async searchWines(query: string): Promise<Wine[]> {
-    const searchTerm = query.toLowerCase();
-    return Array.from(this.wines.values()).filter(wine =>
-      wine.name.toLowerCase().includes(searchTerm) ||
-      wine.producer?.toLowerCase().includes(searchTerm) ||
-      wine.region?.toLowerCase().includes(searchTerm) ||
-      wine.year?.toString().toLowerCase().includes(searchTerm) ||
-      wine.type.toLowerCase().includes(searchTerm) ||
-      wine.notes?.toLowerCase().includes(searchTerm)
+    const searchTerm = `%${query}%`;
+    return await db.select().from(wines).where(
+      or(
+        ilike(wines.name, searchTerm),
+        ilike(wines.producer, searchTerm),
+        ilike(wines.region, searchTerm),
+        ilike(wines.type, searchTerm),
+        ilike(wines.notes, searchTerm)
+      )
     );
   }
 
   // Cellar operations
   async getCellarColumn(label: string): Promise<CellarColumn | undefined> {
-    return Array.from(this.cellarColumns.values()).find(col => col.label === label);
+    const [column] = await db.select().from(cellarColumns).where(eq(cellarColumns.label, label));
+    return column || undefined;
   }
 
   async getAllCellarColumns(): Promise<CellarColumn[]> {
-    return Array.from(this.cellarColumns.values()).sort((a, b) => a.label.localeCompare(b.label));
+    return await db.select().from(cellarColumns).orderBy(cellarColumns.label);
   }
 
   async createCellarColumn(insertColumn: InsertCellarColumn): Promise<CellarColumn> {
-    const id = randomUUID();
-    const column: CellarColumn = {
-      ...insertColumn,
-      id,
-      layers: insertColumn.layers || 4,
-    };
-    this.cellarColumns.set(id, column);
+    const [column] = await db
+      .insert(cellarColumns)
+      .values(insertColumn)
+      .returning();
     return column;
   }
 
   async updateCellarColumn(id: string, updateData: Partial<InsertCellarColumn>): Promise<CellarColumn | undefined> {
-    const existingColumn = this.cellarColumns.get(id);
-    if (!existingColumn) return undefined;
-
-    const updatedColumn: CellarColumn = {
-      ...existingColumn,
-      ...updateData,
-    };
-    this.cellarColumns.set(id, updatedColumn);
-    return updatedColumn;
+    const [column] = await db
+      .update(cellarColumns)
+      .set(updateData)
+      .where(eq(cellarColumns.id, id))
+      .returning();
+    return column || undefined;
   }
 
   // Statistics
   async getWineCount(): Promise<number> {
-    return this.wines.size;
+    const result = await db.select().from(wines);
+    return result.length;
   }
 
   async getLocationCount(): Promise<number> {
+    const result = await db.select({
+      column: wines.column,
+      layer: wines.layer
+    }).from(wines);
+    
     const usedLocations = new Set<string>();
-    Array.from(this.wines.values()).forEach(wine => {
+    result.forEach(wine => {
       usedLocations.add(`${wine.column}-${wine.layer}`);
     });
     return usedLocations.size;
   }
 
   async getPremiumWineCount(): Promise<number> {
-    return Array.from(this.wines.values()).filter(wine => 
+    const result = await db.select().from(wines);
+    return result.filter(wine => 
       wine.price && parseFloat(wine.price) > 200
     ).length;
   }
 
   async getTotalCollectionValue(): Promise<number> {
-    return Array.from(this.wines.values()).reduce((total, wine) => {
+    const result = await db.select().from(wines);
+    return result.reduce((total, wine) => {
       return total + (wine.price ? parseFloat(wine.price) : 0);
     }, 0);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

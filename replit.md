@@ -8,6 +8,10 @@ This is a full-stack wine cellar management application built with React (fronte
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+- **January 28, 2025**: Migrated from in-memory storage to PostgreSQL database to solve data persistence issues during server restarts. Updated storage layer to use Drizzle ORM with proper database operations.
+
 ## System Architecture
 
 ### Frontend Architecture
@@ -45,7 +49,7 @@ Preferred communication style: Simple, everyday language.
 2. **Search API**: Full-text search across wine fields
 3. **Location API**: Retrieve wines by cellar position
 4. **Statistics API**: Aggregate data for dashboard metrics
-5. **Storage Layer**: Abstracted data access with in-memory fallback
+5. **Storage Layer**: PostgreSQL database with Drizzle ORM (migrated from in-memory storage)
 
 ### Shared Schema
 - **Type-safe contracts**: Shared TypeScript types between frontend and backend
