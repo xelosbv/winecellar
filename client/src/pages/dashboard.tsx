@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Wine, Search, ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Wine as WineType } from "@shared/schema";
+import { Link } from "wouter";
 
 export default function Dashboard() {
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
@@ -17,6 +18,17 @@ export default function Dashboard() {
 
   const { data: wines = [] } = useQuery<WineType[]>({
     queryKey: ["/api/wines"],
+  });
+
+  const { data: searchResults = [] } = useQuery<WineType[]>({
+    queryKey: ["/api/wines/search", searchQuery],
+    queryFn: async () => {
+      if (!searchQuery.trim()) return [];
+      const response = await fetch(`/api/wines/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      if (!response.ok) throw new Error('Search failed');
+      return response.json();
+    },
+    enabled: searchQuery.trim().length > 0,
   });
 
   const recentWines = wines.slice(0, 3);
@@ -48,6 +60,38 @@ export default function Dashboard() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
+                
+                {/* Search Results */}
+                {searchQuery.trim() && searchResults.length > 0 && (
+                  <div className="mb-4 space-y-2 max-h-48 overflow-y-auto">
+                    {searchResults.slice(0, 5).map((wine) => (
+                      <div key={wine.id} className="flex items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div className="w-8 h-8 bg-wine/10 rounded-lg flex items-center justify-center mr-3">
+                          <Wine className="text-wine w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">{wine.name}</p>
+                          <p className="text-xs text-gray-500">{wine.producer} • {wine.column}-{wine.layer}</p>
+                        </div>
+                      </div>
+                    ))}
+                    {searchResults.length > 5 && (
+                      <Link href="/wines">
+                        <div className="text-center p-2 text-sm text-wine hover:text-wine-light cursor-pointer">
+                          View all {searchResults.length} results →
+                        </div>
+                      </Link>
+                    )}
+                  </div>
+                )}
+
+                {/* No results message */}
+                {searchQuery.trim() && searchResults.length === 0 && (
+                  <div className="mb-4 p-3 text-center text-sm text-gray-500 bg-gray-50 rounded-lg">
+                    No wines found matching "{searchQuery}"
+                  </div>
+                )}
+                
                 <Button 
                   className="w-full bg-wine text-white hover:bg-wine-light"
                   onClick={() => setIsAddWineModalOpen(true)}

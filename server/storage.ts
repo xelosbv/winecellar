@@ -72,6 +72,11 @@ export class MemStorage implements IStorage {
     const wine: Wine = {
       ...insertWine,
       id,
+      producer: insertWine.producer || null,
+      year: insertWine.year || null,
+      region: insertWine.region || null,
+      price: insertWine.price || null,
+      notes: insertWine.notes || null,
       createdAt: new Date(),
     };
     this.wines.set(id, wine);
@@ -118,6 +123,7 @@ export class MemStorage implements IStorage {
     const column: CellarColumn = {
       ...insertColumn,
       id,
+      layers: insertColumn.layers || 4,
     };
     this.cellarColumns.set(id, column);
     return column;

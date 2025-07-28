@@ -194,7 +194,7 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
                   <FormItem>
                     <FormLabel>Producer</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -213,6 +213,7 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
                         min={1800}
                         max={2030}
                         {...field}
+                        value={field.value || ""}
                         onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
                       />
                     </FormControl>
@@ -310,6 +311,7 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
                           step="0.01"
                           className="pl-7"
                           {...field}
+                          value={field.value || ""}
                         />
                       </div>
                     </FormControl>
@@ -325,7 +327,7 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
                   <FormItem>
                     <FormLabel>Region</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -344,6 +346,7 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
                       rows={3}
                       placeholder="Tasting notes, special occasions, etc."
                       {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />

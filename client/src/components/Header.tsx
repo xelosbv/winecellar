@@ -27,15 +27,15 @@ export default function Header({ onAddWine }: HeaderProps) {
           <nav className="hidden md:flex space-x-8">
             {navItems.map((item) => (
               <Link key={item.path} href={item.path}>
-                <a
-                  className={`font-medium pb-2 ${
+                <span
+                  className={`font-medium pb-2 cursor-pointer ${
                     location === item.path
                       ? "text-wine border-b-2 border-wine"
                       : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   {item.label}
-                </a>
+                </span>
               </Link>
             ))}
           </nav>
