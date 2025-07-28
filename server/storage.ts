@@ -105,7 +105,9 @@ export class MemStorage implements IStorage {
       wine.name.toLowerCase().includes(searchTerm) ||
       wine.producer?.toLowerCase().includes(searchTerm) ||
       wine.region?.toLowerCase().includes(searchTerm) ||
-      wine.year?.toString().includes(searchTerm)
+      wine.year?.toString().toLowerCase().includes(searchTerm) ||
+      wine.type.toLowerCase().includes(searchTerm) ||
+      wine.notes?.toLowerCase().includes(searchTerm)
     );
   }
 
