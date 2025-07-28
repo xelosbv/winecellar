@@ -1,4 +1,4 @@
-import { type Wine, type InsertWine, type CellarColumn, type InsertCellarColumn, type Country, type InsertCountry, wines, cellarColumns, countries } from "@shared/schema";
+import { type Wine, type InsertWine, type CellarColumn, type InsertCellarColumn, type CellarSection, type InsertCellarSection, type Country, type InsertCountry, wines, cellarColumns, cellarSections, countries } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and } from "drizzle-orm";
 
@@ -18,6 +18,13 @@ export interface IStorage {
   createCellarColumn(column: InsertCellarColumn): Promise<CellarColumn>;
   updateCellarColumn(id: string, column: Partial<InsertCellarColumn>): Promise<CellarColumn | undefined>;
   
+  // Cellar section operations
+  getCellarSection(column: string, layer: number): Promise<CellarSection | undefined>;
+  getAllCellarSections(): Promise<CellarSection[]>;
+  createCellarSection(section: InsertCellarSection): Promise<CellarSection>;
+  updateCellarSection(id: string, section: Partial<InsertCellarSection>): Promise<CellarSection | undefined>;
+  initializeCellarSections(): Promise<void>;
+  
   // Country operations
   getCountry(id: string): Promise<Country | undefined>;
   getAllCountries(): Promise<Country[]>;
@@ -36,12 +43,13 @@ export class DatabaseStorage implements IStorage {
   constructor() {
     this.initializeCellarColumns();
     this.initializeCountries();
+    this.initializeCellarSections();
   }
 
   private async initializeCellarColumns() {
     const existingColumns = await db.select().from(cellarColumns);
     if (existingColumns.length === 0) {
-      const columnLabels = ['A', 'B', 'C', 'D', 'E', 'F'];
+      const columnLabels = ['A', 'B', 'C', 'D', 'E']; // A-E as requested, not A-F
       for (const label of columnLabels) {
         await db.insert(cellarColumns).values({
           label,
@@ -136,6 +144,52 @@ export class DatabaseStorage implements IStorage {
       .where(eq(cellarColumns.id, id))
       .returning();
     return column || undefined;
+  }
+
+  // Cellar section operations
+  async getCellarSection(column: string, layer: number): Promise<CellarSection | undefined> {
+    const [section] = await db.select().from(cellarSections)
+      .where(and(eq(cellarSections.column, column), eq(cellarSections.layer, layer)));
+    return section || undefined;
+  }
+
+  async getAllCellarSections(): Promise<CellarSection[]> {
+    return await db.select().from(cellarSections).orderBy(cellarSections.column, cellarSections.layer);
+  }
+
+  async createCellarSection(insertSection: InsertCellarSection): Promise<CellarSection> {
+    const [section] = await db
+      .insert(cellarSections)
+      .values(insertSection)
+      .returning();
+    return section;
+  }
+
+  async updateCellarSection(id: string, updateData: Partial<InsertCellarSection>): Promise<CellarSection | undefined> {
+    const [section] = await db
+      .update(cellarSections)
+      .set(updateData)
+      .where(eq(cellarSections.id, id))
+      .returning();
+    return section || undefined;
+  }
+
+  async initializeCellarSections(): Promise<void> {
+    const existingSections = await db.select().from(cellarSections);
+    if (existingSections.length === 0) {
+      const columnLabels = ['A', 'B', 'C', 'D', 'E']; // A-E as requested, not A-F
+      const layers = [1, 2, 3, 4]; // 4 layers, 1=top, 4=bottom
+      
+      for (const column of columnLabels) {
+        for (const layer of layers) {
+          await db.insert(cellarSections).values({
+            column,
+            layer,
+            isEnabled: "true"
+          });
+        }
+      }
+    }
   }
 
   // Country operations

@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertWineSchema, insertCountrySchema } from "@shared/schema";
+import { insertWineSchema, insertCountrySchema, insertCellarSectionSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -112,6 +112,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(columns);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cellar columns" });
+    }
+  });
+
+  app.get("/api/cellar/sections", async (req, res) => {
+    try {
+      const sections = await storage.getAllCellarSections();
+      res.json(sections);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cellar sections" });
+    }
+  });
+
+  app.put("/api/cellar/sections/:id", async (req, res) => {
+    try {
+      const validatedData = insertCellarSectionSchema.partial().parse(req.body);
+      const section = await storage.updateCellarSection(req.params.id, validatedData);
+      if (!section) {
+        return res.status(404).json({ error: "Cellar section not found" });
+      }
+      res.json(section);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid section data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update cellar section" });
     }
   });
 

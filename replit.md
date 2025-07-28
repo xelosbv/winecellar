@@ -11,6 +11,7 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 - **January 28, 2025**: Migrated from in-memory storage to PostgreSQL database to solve data persistence issues during server restarts. Updated storage layer to use Drizzle ORM with proper database operations.
+- **January 28, 2025**: Implemented complete cellar designer system with customizable layout (A-E columns, 4 layers). Added settings navigation menu with Countries and Cellar Designer tabs. Users can now enable/disable individual cellar sections and dashboard adapts to show only enabled sections. Default setup creates A-E columns with 4 layers where 1=top and 4=bottom.
 
 ## System Architecture
 

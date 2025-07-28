@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { Wine as WineType } from "@shared/schema";
+import { Wine as WineType, CellarSection } from "@shared/schema";
 import { Edit, Plus } from "lucide-react";
+import { Link } from "wouter";
 
 interface CellarLocation {
   column: string;
@@ -15,6 +16,10 @@ export default function CellarVisualization() {
     queryKey: ["/api/wines"],
   });
 
+  const { data: cellarSections = [] } = useQuery<CellarSection[]>({
+    queryKey: ["/api/cellar/sections"],
+  });
+
   // Create a map of location to wine count
   const locationMap = new Map<string, number>();
   wines.forEach((wine) => {
@@ -22,15 +27,25 @@ export default function CellarVisualization() {
     locationMap.set(key, (locationMap.get(key) || 0) + 1);
   });
 
-  const columns = ['A', 'B', 'C', 'D', 'E', 'F'];
-  const layers = [4, 3, 2, 1]; // Top to bottom
+  // Filter only enabled sections and group by column
+  const enabledSections = cellarSections.filter(section => section.isEnabled === "true");
+  const groupedSections = enabledSections.reduce((acc, section) => {
+    if (!acc[section.column]) {
+      acc[section.column] = [];
+    }
+    acc[section.column].push(section);
+    return acc;
+  }, {} as Record<string, CellarSection[]>);
+
+  // Get unique columns and sort them
+  const enabledColumns = Object.keys(groupedSections).sort();
 
   const getLocationCount = (column: string, layer: number): number => {
     return locationMap.get(`${column}-${layer}`) || 0;
   };
 
-  const LocationCell = ({ column, layer }: { column: string; layer: number }) => {
-    const count = getLocationCount(column, layer);
+  const LocationCell = ({ section }: { section: CellarSection }) => {
+    const count = getLocationCount(section.column, section.layer);
     const hasWines = count > 0;
 
     return (
@@ -40,7 +55,7 @@ export default function CellarVisualization() {
             ? "bg-gradient-to-b from-wine/20 to-wine/40 border-wine/30 text-wine hover:from-wine/30 hover:to-wine/50"
             : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
         }`}
-        title={`${column}-${layer}: ${count} wines`}
+        title={`${section.column}-${section.layer}: ${count} wines`}
       >
         {hasWines ? count : <Plus className="w-3 h-3" />}
       </div>
@@ -52,20 +67,24 @@ export default function CellarVisualization() {
       <CardContent className="p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold text-gray-900">Cellar Layout</h2>
-          <Button variant="ghost" className="text-sm text-wine hover:text-wine-light">
-            <Edit className="w-4 h-4 mr-1" />
-            Edit Layout
-          </Button>
+          <Link href="/settings?tab=cellar">
+            <Button variant="ghost" className="text-sm text-wine hover:text-wine-light">
+              <Edit className="w-4 h-4 mr-1" />
+              Edit Layout
+            </Button>
+          </Link>
         </div>
         
-        <div className="grid grid-cols-6 gap-2 mb-4">
-          {columns.map((column) => (
+        <div className={`grid gap-2 mb-4`} style={{ gridTemplateColumns: `repeat(${enabledColumns.length}, minmax(0, 1fr))` }}>
+          {enabledColumns.map((column) => (
             <div key={column} className="text-center">
               <div className="text-xs font-medium text-gray-600 mb-2">{column}</div>
               <div className="space-y-1">
-                {layers.map((layer) => (
-                  <LocationCell key={`${column}-${layer}`} column={column} layer={layer} />
-                ))}
+                {groupedSections[column]
+                  ?.sort((a, b) => b.layer - a.layer) // Sort layers from 4 to 1 (top to bottom)
+                  .map((section) => (
+                    <LocationCell key={`${section.column}-${section.layer}`} section={section} />
+                  ))}
               </div>
             </div>
           ))}
