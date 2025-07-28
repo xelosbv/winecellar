@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertWineSchema } from "@shared/schema";
+import { insertWineSchema, insertCountrySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -9,7 +9,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/wines", async (req, res) => {
     try {
       const wines = await storage.getAllWines();
-      res.json(wines);
+      // Fetch country names for each wine
+      const winesWithCountries = await Promise.all(
+        wines.map(async (wine) => {
+          if (wine.countryId) {
+            const country = await storage.getCountry(wine.countryId);
+            return { ...wine, countryName: country?.name || null };
+          }
+          return { ...wine, countryName: null };
+        })
+      );
+      res.json(winesWithCountries);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch wines" });
     }
@@ -102,6 +112,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(columns);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cellar columns" });
+    }
+  });
+
+  // Country routes
+  app.get("/api/countries", async (req, res) => {
+    try {
+      const countries = await storage.getAllCountries();
+      res.json(countries);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch countries" });
+    }
+  });
+
+  app.get("/api/countries/:id", async (req, res) => {
+    try {
+      const country = await storage.getCountry(req.params.id);
+      if (!country) {
+        return res.status(404).json({ error: "Country not found" });
+      }
+      res.json(country);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch country" });
+    }
+  });
+
+  app.post("/api/countries", async (req, res) => {
+    try {
+      const validatedData = insertCountrySchema.parse(req.body);
+      const country = await storage.createCountry(validatedData);
+      res.status(201).json(country);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid country data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create country" });
+    }
+  });
+
+  app.put("/api/countries/:id", async (req, res) => {
+    try {
+      const validatedData = insertCountrySchema.partial().parse(req.body);
+      const country = await storage.updateCountry(req.params.id, validatedData);
+      if (!country) {
+        return res.status(404).json({ error: "Country not found" });
+      }
+      res.json(country);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid country data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update country" });
+    }
+  });
+
+  app.delete("/api/countries/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteCountry(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Country not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete country" });
     }
   });
 

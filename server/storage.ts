@@ -1,4 +1,4 @@
-import { type Wine, type InsertWine, type CellarColumn, type InsertCellarColumn, wines, cellarColumns } from "@shared/schema";
+import { type Wine, type InsertWine, type CellarColumn, type InsertCellarColumn, type Country, type InsertCountry, wines, cellarColumns, countries } from "@shared/schema";
 import { db } from "./db";
 import { eq, ilike, or, and } from "drizzle-orm";
 
@@ -18,6 +18,13 @@ export interface IStorage {
   createCellarColumn(column: InsertCellarColumn): Promise<CellarColumn>;
   updateCellarColumn(id: string, column: Partial<InsertCellarColumn>): Promise<CellarColumn | undefined>;
   
+  // Country operations
+  getCountry(id: string): Promise<Country | undefined>;
+  getAllCountries(): Promise<Country[]>;
+  createCountry(insertCountry: InsertCountry): Promise<Country>;
+  updateCountry(id: string, updateData: Partial<InsertCountry>): Promise<Country | undefined>;
+  deleteCountry(id: string): Promise<boolean>;
+  
   // Statistics
   getWineCount(): Promise<number>;
   getLocationCount(): Promise<number>;
@@ -28,6 +35,7 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   constructor() {
     this.initializeCellarColumns();
+    this.initializeCountries();
   }
 
   private async initializeCellarColumns() {
@@ -39,6 +47,16 @@ export class DatabaseStorage implements IStorage {
           label,
           layers: 4
         });
+      }
+    }
+  }
+
+  private async initializeCountries() {
+    const existingCountries = await db.select().from(countries);
+    if (existingCountries.length === 0) {
+      const defaultCountries = ['France', 'Spain', 'Italy', 'Austria', 'Belgium'];
+      for (const name of defaultCountries) {
+        await db.insert(countries).values({ name });
       }
     }
   }
@@ -118,6 +136,38 @@ export class DatabaseStorage implements IStorage {
       .where(eq(cellarColumns.id, id))
       .returning();
     return column || undefined;
+  }
+
+  // Country operations
+  async getCountry(id: string): Promise<Country | undefined> {
+    const [country] = await db.select().from(countries).where(eq(countries.id, id));
+    return country || undefined;
+  }
+
+  async getAllCountries(): Promise<Country[]> {
+    return await db.select().from(countries).orderBy(countries.name);
+  }
+
+  async createCountry(insertCountry: InsertCountry): Promise<Country> {
+    const [country] = await db
+      .insert(countries)
+      .values(insertCountry)
+      .returning();
+    return country;
+  }
+
+  async updateCountry(id: string, updateData: Partial<InsertCountry>): Promise<Country | undefined> {
+    const [country] = await db
+      .update(countries)
+      .set(updateData)
+      .where(eq(countries.id, id))
+      .returning();
+    return country || undefined;
+  }
+
+  async deleteCountry(id: string): Promise<boolean> {
+    const result = await db.delete(countries).where(eq(countries.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
   // Statistics

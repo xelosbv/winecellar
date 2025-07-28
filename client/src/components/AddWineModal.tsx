@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { searchWineDatabase } from "@/lib/wineApi";
 import { useToast } from "@/hooks/use-toast";
@@ -28,6 +28,14 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const { data: countries = [] } = useQuery({
+    queryKey: ["/api/countries"],
+    queryFn: async () => {
+      const response = await fetch("/api/countries");
+      return response.json();
+    },
+  });
+
   const form = useForm<InsertWine>({
     resolver: zodResolver(insertWineSchema),
     defaultValues: {
@@ -36,6 +44,7 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
       year: undefined,
       type: "",
       region: "",
+      countryId: "",
       column: "",
       layer: undefined,
       price: "",
@@ -329,6 +338,31 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
                     <FormControl>
                       <Input {...field} value={field.value || ""} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="countryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {countries.map((country: any) => (
+                          <SelectItem key={country.id} value={country.id}>
+                            {country.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

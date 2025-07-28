@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Wine, Plus, User } from "lucide-react";
+import { Wine, Plus, User, Settings } from "lucide-react";
 
 interface HeaderProps {
   onAddWine: () => void;
@@ -48,6 +48,11 @@ export default function Header({ onAddWine }: HeaderProps) {
               <Plus className="w-4 h-4 mr-2" />
               Add Wine
             </Button>
+            <Link href="/settings">
+              <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600">
+                <Settings className="w-5 h-5" />
+              </Button>
+            </Link>
             <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600">
               <User className="w-5 h-5" />
             </Button>
