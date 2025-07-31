@@ -19,9 +19,10 @@ import { Search, X } from "lucide-react";
 interface AddWineModalProps {
   isOpen: boolean;
   onClose: () => void;
+  prefilledLocation?: { column: string; layer: number } | null;
 }
 
-export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
+export default function AddWineModal({ isOpen, onClose, prefilledLocation }: AddWineModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<WineSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -45,8 +46,8 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
       type: "",
       region: "",
       countryId: "",
-      column: "",
-      layer: undefined,
+      column: prefilledLocation?.column || "",
+      layer: prefilledLocation?.layer || undefined,
       price: "",
       notes: "",
     },
@@ -107,14 +108,18 @@ export default function AddWineModal({ isOpen, onClose }: AddWineModalProps) {
     addWineMutation.mutate(data);
   };
 
-  // Reset form when modal closes
+  // Reset form when modal closes and update location when prefilled
   useEffect(() => {
     if (!isOpen) {
       form.reset();
       setSearchQuery("");
       setSearchResults([]);
+    } else if (prefilledLocation) {
+      // Set the location fields when modal opens with prefilled location
+      form.setValue("column", prefilledLocation.column);
+      form.setValue("layer", prefilledLocation.layer);
     }
-  }, [isOpen, form]);
+  }, [isOpen, prefilledLocation, form]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
