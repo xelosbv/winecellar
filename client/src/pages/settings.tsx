@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Country, InsertCountry, CellarSection } from "@shared/schema";
-import { Plus, Edit, Trash2, Layout, Globe, ToggleLeft, ToggleRight } from "lucide-react";
+import { Plus, Edit, Trash2, Layout, Globe, ToggleLeft, ToggleRight, Home, Wine, Settings as SettingsIcon, ArrowLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 
 const insertCountrySchema = z.object({
   name: z.string().min(1, "Country name is required"),
@@ -349,6 +349,36 @@ export default function Settings() {
 
   return (
     <div className="container mx-auto p-6">
+      {/* Navigation Header */}
+      <nav className="mb-6 flex items-center justify-between bg-white border-b border-gray-200 pb-4">
+        <div className="flex items-center space-x-4">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="flex items-center text-gray-600 hover:text-gray-900">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Link href="/">
+            <Button variant="ghost" size="sm" className="flex items-center">
+              <Home className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+          </Link>
+          <Link href="/wines">
+            <Button variant="ghost" size="sm" className="flex items-center">
+              <Wine className="w-4 h-4 mr-2" />
+              Wines
+            </Button>
+          </Link>
+          <Button variant="ghost" size="sm" className="flex items-center text-wine">
+            <SettingsIcon className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+        </div>
+      </nav>
+
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
         <p className="text-gray-600">Manage your wine cellar preferences and configuration.</p>
