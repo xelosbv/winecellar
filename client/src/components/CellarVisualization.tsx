@@ -29,11 +29,12 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
     queryKey: ["/api/cellar/sections"],
   });
 
-  // Create a map of location to wine count
+  // Create a map of location to bottle count (considering quantities)
   const locationMap = new Map<string, number>();
   wines.forEach((wine) => {
     const key = `${wine.column}-${wine.layer}`;
-    locationMap.set(key, (locationMap.get(key) || 0) + 1);
+    const bottleCount = wine.quantity || 1;
+    locationMap.set(key, (locationMap.get(key) || 0) + bottleCount);
   });
 
   // Filter only enabled sections and group by column
@@ -75,7 +76,7 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
             ? "bg-gradient-to-b from-wine/20 to-wine/40 border-wine/30 text-wine hover:from-wine/30 hover:to-wine/50"
             : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
         }`}
-        title={`${section.column}-${section.layer}: ${count} wines`}
+        title={`${section.column}-${section.layer}: ${count} bottle${count !== 1 ? 's' : ''}`}
         onClick={handleClick}
       >
         {hasWines ? count : <Plus className="w-3 h-3" />}
