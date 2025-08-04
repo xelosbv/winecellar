@@ -8,6 +8,8 @@ import { Wine, Eye, Edit, Trash2, Filter, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import WineDetailsModal from "./WineDetailsModal";
+import EditWineModal from "./EditWineModal";
 
 const wineTypeColors = {
   red: "bg-red-100 text-red-800",
@@ -24,6 +26,8 @@ interface WineTableProps {
 
 export default function WineTable({ locationFilter, onClearLocationFilter }: WineTableProps) {
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [selectedWineForView, setSelectedWineForView] = useState<WineType | null>(null);
+  const [selectedWineForEdit, setSelectedWineForEdit] = useState<WineType | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -183,10 +187,20 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <Button variant="ghost" size="sm" className="text-wine hover:text-wine-light">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-wine hover:text-wine-light"
+                        onClick={() => setSelectedWineForView(wine)}
+                      >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-gray-400 hover:text-gray-600"
+                        onClick={() => setSelectedWineForEdit(wine)}
+                      >
                         <Edit className="w-4 h-4" />
                       </Button>
                       <Button 
@@ -215,6 +229,29 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
             </div>
           </div>
         </div>
+      )}
+
+      {/* Wine Details Modal */}
+      {selectedWineForView && (
+        <WineDetailsModal
+          wine={selectedWineForView}
+          isOpen={!!selectedWineForView}
+          onClose={() => setSelectedWineForView(null)}
+        />
+      )}
+
+      {/* Edit Wine Modal */}
+      {selectedWineForEdit && (
+        <EditWineModal
+          wine={selectedWineForEdit}
+          isOpen={!!selectedWineForEdit}
+          onClose={() => setSelectedWineForEdit(null)}
+          onSuccess={() => {
+            setSelectedWineForEdit(null);
+            queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
+            queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+          }}
+        />
       )}
     </Card>
   );
