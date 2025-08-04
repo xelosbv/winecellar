@@ -253,7 +253,16 @@ export class DatabaseStorage implements IStorage {
   async getTotalCollectionValue(): Promise<number> {
     const result = await db.select().from(wines);
     return result.reduce((total, wine) => {
-      return total + (wine.price ? parseFloat(wine.price) : 0);
+      const quantity = wine.quantity || 1;
+      const price = wine.price ? parseFloat(wine.price) : 0;
+      return total + (price * quantity);
+    }, 0);
+  }
+
+  async getTotalBottleCount(): Promise<number> {
+    const result = await db.select().from(wines);
+    return result.reduce((total, wine) => {
+      return total + (wine.quantity || 1);
     }, 0);
   }
 }

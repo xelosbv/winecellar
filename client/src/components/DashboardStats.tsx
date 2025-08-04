@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Wine, Layers, Star, DollarSign } from "lucide-react";
+import { Wine, Layers, Star, DollarSign, Package } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 interface Stats {
@@ -7,6 +7,7 @@ interface Stats {
   locations: number;
   premiumWines: number;
   totalValue: number;
+  totalBottles: number;
 }
 
 export default function DashboardStats() {
@@ -49,10 +50,17 @@ export default function DashboardStats() {
   const statItems = [
     {
       icon: Wine,
-      label: "Total Wines",
+      label: "Wine Types",
       value: stats.totalWines,
       bgColor: "bg-wine/10",
       iconColor: "text-wine",
+    },
+    {
+      icon: Package,
+      label: "Total Bottles",
+      value: stats.totalBottles || stats.totalWines,
+      bgColor: "bg-blue-100",
+      iconColor: "text-blue-600",
     },
     {
       icon: Layers,
@@ -60,13 +68,6 @@ export default function DashboardStats() {
       value: stats.locations,
       bgColor: "bg-purple-100",
       iconColor: "text-purple-deep",
-    },
-    {
-      icon: Star,
-      label: "Premium Wines",
-      value: stats.premiumWines,
-      bgColor: "bg-yellow-100",
-      iconColor: "text-gold",
     },
     {
       icon: DollarSign,

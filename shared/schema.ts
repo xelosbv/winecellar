@@ -21,6 +21,7 @@ export const wines = pgTable("wines", {
   column: text("column").notNull(), // A-F
   layer: integer("layer").notNull(), // 1-4
   price: decimal("price", { precision: 10, scale: 2 }),
+  quantity: integer("quantity").notNull().default(1), // Number of bottles
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });

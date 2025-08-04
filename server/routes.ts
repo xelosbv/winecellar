@@ -208,18 +208,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Statistics routes
   app.get("/api/stats", async (req, res) => {
     try {
-      const [totalWines, locations, premiumWines, totalValue] = await Promise.all([
+      const [totalWines, locations, premiumWines, totalValue, totalBottles] = await Promise.all([
         storage.getWineCount(),
         storage.getLocationCount(),
         storage.getPremiumWineCount(),
-        storage.getTotalCollectionValue()
+        storage.getTotalCollectionValue(),
+        storage.getTotalBottleCount()
       ]);
 
       res.json({
         totalWines,
         locations,
         premiumWines,
-        totalValue
+        totalValue,
+        totalBottles
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch statistics" });

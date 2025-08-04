@@ -128,6 +128,7 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bottles</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
@@ -135,7 +136,7 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredWines.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-6 py-8 text-center">
+                <td colSpan={8} className="px-6 py-8 text-center">
                   <div className="flex flex-col items-center">
                     <Wine className="w-12 h-12 text-gray-400 mb-4" />
                     <h3 className="text-lg font-medium text-gray-900 mb-2">No wines found</h3>
@@ -171,6 +172,12 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{wine.year || "N/A"}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{(wine as any).countryName || "N/A"}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{wine.column}-{wine.layer}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="flex items-center">
+                      <span className="font-medium">{wine.quantity || 1}</span>
+                      <span className="ml-1 text-gray-500">bottle{(wine.quantity || 1) !== 1 ? 's' : ''}</span>
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {wine.price ? `$${parseFloat(wine.price).toLocaleString()}` : "N/A"}
                   </td>

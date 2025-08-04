@@ -49,6 +49,7 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
       column: prefilledLocation?.column || "",
       layer: prefilledLocation?.layer || undefined,
       price: "",
+      quantity: 1,
       notes: "",
     },
   });
@@ -385,6 +386,27 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
                           value={field.value || ""}
                         />
                       </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Number of Bottles *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="999"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 1)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
