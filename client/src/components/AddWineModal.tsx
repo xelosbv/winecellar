@@ -79,12 +79,15 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
     },
   });
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return;
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
     
     setIsSearching(true);
     try {
-      const results = await searchWineDatabase(searchQuery);
+      const results = await searchWineDatabase(query);
       setSearchResults(results);
     } catch (error) {
       console.error("Search error:", error);
@@ -93,6 +96,15 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
       setIsSearching(false);
     }
   };
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      handleSearch(searchQuery);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   const selectWineFromResults = async (wine: WineSearchResult) => {
     form.setValue("name", wine.name);
@@ -160,21 +172,32 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
             {/* Wine Search */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2">Search Wine Database</Label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    placeholder="Type wine name to search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleSearch())}
-                  />
-                  <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                </div>
-                <Button type="button" onClick={handleSearch} disabled={isSearching}>
-                  {isSearching ? "Searching..." : "Search"}
-                </Button>
+              <div className="relative">
+                <Input
+                  placeholder="Type wine name to search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pr-20"
+                />
+                {isSearching && (
+                  <div className="absolute right-8 top-1/2 transform -translate-y-1/2">
+                    <div className="h-4 w-4 border-2 border-wine-600 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchQuery("");
+                      setSearchResults([]);
+                    }}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-              <p className="mt-1 text-sm text-gray-500">Search our database to auto-fill wine information</p>
+              <p className="mt-1 text-sm text-gray-500">Search automatically as you type</p>
             </div>
 
             {/* Search Results */}
