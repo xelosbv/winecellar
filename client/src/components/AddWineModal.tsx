@@ -205,7 +205,9 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center mb-3">
-                    <h4 className="text-sm font-medium text-blue-900">Search Results</h4>
+                    <h4 className="text-sm font-medium text-blue-900">
+                      Search Results ({searchResults.length} wine{searchResults.length !== 1 ? 's' : ''} found)
+                    </h4>
                     <Button
                       type="button"
                       variant="ghost"
@@ -230,6 +232,11 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
                         </div>
                       </div>
                     ))}
+                    {searchResults.length > 3 && (
+                      <div className="text-center py-2 text-sm text-gray-500">
+                        Showing top 3 results. {searchResults.length - 3} more wine{searchResults.length - 3 !== 1 ? 's' : ''} available.
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
