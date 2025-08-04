@@ -87,5 +87,9 @@ export interface WineSearchResult {
   year?: number;
   type?: string;
   region?: string;
+  country?: string;
+  price?: number;
   description?: string;
+  points?: number;
+  variety?: string;
 }

@@ -94,12 +94,39 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
     }
   };
 
-  const selectWineFromResults = (wine: WineSearchResult) => {
+  const selectWineFromResults = async (wine: WineSearchResult) => {
     form.setValue("name", wine.name);
     if (wine.producer) form.setValue("producer", wine.producer);
     if (wine.year) form.setValue("year", wine.year);
     if (wine.type) form.setValue("type", wine.type.toLowerCase());
     if (wine.region) form.setValue("region", wine.region);
+    if (wine.price) form.setValue("price", wine.price.toString());
+    
+    // Handle country mapping - find or create country
+    if (wine.country) {
+      const existingCountry = countries.find((c: any) => 
+        c.name.toLowerCase() === wine.country!.toLowerCase() ||
+        (wine.country === 'US' && c.name.toLowerCase() === 'united states') ||
+        (wine.country === 'United States' && c.name.toLowerCase() === 'us')
+      );
+      
+      if (existingCountry) {
+        form.setValue("countryId", existingCountry.id);
+      } else {
+        // Create new country
+        try {
+          const countryName = wine.country === 'US' ? 'United States' : wine.country;
+          const response = await apiRequest("POST", "/api/countries", { name: countryName });
+          const newCountry = await response.json();
+          form.setValue("countryId", newCountry.id);
+          // Refresh countries list
+          queryClient.invalidateQueries({ queryKey: ["/api/countries"] });
+        } catch (error) {
+          console.warn("Could not create country:", wine.country);
+        }
+      }
+    }
+    
     setSearchResults([]);
     setSearchQuery("");
   };
