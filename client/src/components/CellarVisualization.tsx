@@ -13,7 +13,11 @@ interface CellarLocation {
   wineCount: number;
 }
 
-export default function CellarVisualization() {
+interface CellarVisualizationProps {
+  onLocationClick?: (column: string, layer: number) => void;
+}
+
+export default function CellarVisualization({ onLocationClick }: CellarVisualizationProps) {
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{column: string, layer: number} | null>(null);
 
@@ -54,8 +58,11 @@ export default function CellarVisualization() {
     const hasWines = count > 0;
 
     const handleClick = () => {
-      if (!hasWines) {
-        // Only allow adding wine to empty locations for now
+      if (hasWines) {
+        // Filter wines by this location when clicking on numbered cells
+        onLocationClick?.(section.column, section.layer);
+      } else {
+        // Add wine to empty locations
         setSelectedLocation({ column: section.column, layer: section.layer });
         setIsAddWineModalOpen(true);
       }

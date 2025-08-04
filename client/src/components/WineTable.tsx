@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Wine as WineType } from "@shared/schema";
-import { Wine, Eye, Edit, Trash2, Filter } from "lucide-react";
+import { Wine, Eye, Edit, Trash2, Filter, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +17,12 @@ const wineTypeColors = {
   sparkling: "bg-blue-100 text-blue-800",
 };
 
-export default function WineTable() {
+interface WineTableProps {
+  locationFilter?: { column: string; layer: number } | null;
+  onClearLocationFilter?: () => void;
+}
+
+export default function WineTable({ locationFilter, onClearLocationFilter }: WineTableProps) {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -47,9 +52,12 @@ export default function WineTable() {
     },
   });
 
-  const filteredWines = wines.filter(wine => 
-    typeFilter === "all" || wine.type === typeFilter
-  );
+  const filteredWines = wines.filter(wine => {
+    const matchesType = typeFilter === "all" || wine.type === typeFilter;
+    const matchesLocation = !locationFilter || 
+      (wine.column === locationFilter.column && wine.layer === locationFilter.layer);
+    return matchesType && matchesLocation;
+  });
 
   const handleDeleteWine = (id: string) => {
     if (confirm("Are you sure you want to delete this wine?")) {
@@ -71,7 +79,24 @@ export default function WineTable() {
     <Card className="shadow-sm border border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold text-gray-900">Wine Collection</h2>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Wine Collection</h2>
+            {locationFilter && (
+              <div className="flex items-center mt-2">
+                <Badge variant="secondary" className="bg-wine/10 text-wine border border-wine/30">
+                  Location: {locationFilter.column}-{locationFilter.layer}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 ml-2 hover:bg-wine/20"
+                    onClick={onClearLocationFilter}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+              </div>
+            )}
+          </div>
           <div className="flex space-x-3">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-40">

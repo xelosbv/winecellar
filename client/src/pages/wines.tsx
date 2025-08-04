@@ -16,7 +16,10 @@ export default function Wines() {
           <p className="text-gray-600 mt-2">Manage and explore your wine inventory</p>
         </div>
 
-        <WineTable />
+        <WineTable 
+          locationFilter={null}
+          onClearLocationFilter={() => {}}
+        />
       </main>
 
       <AddWineModal 

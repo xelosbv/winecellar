@@ -15,6 +15,7 @@ import { Link } from "wouter";
 export default function Dashboard() {
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [locationFilter, setLocationFilter] = useState<{column: string, layer: number} | null>(null);
 
   const { data: wines = [] } = useQuery<WineType[]>({
     queryKey: ["/api/wines"],
@@ -41,7 +42,9 @@ export default function Dashboard() {
         <DashboardStats />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <CellarVisualization />
+          <CellarVisualization 
+            onLocationClick={(column, layer) => setLocationFilter({ column, layer })}
+          />
           
           {/* Quick Actions Sidebar */}
           <div className="space-y-6">
@@ -141,7 +144,10 @@ export default function Dashboard() {
 
         {/* Wine Collection Table */}
         <div className="mt-8">
-          <WineTable />
+          <WineTable 
+            locationFilter={locationFilter}
+            onClearLocationFilter={() => setLocationFilter(null)}
+          />
         </div>
       </main>
 
