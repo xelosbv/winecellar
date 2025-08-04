@@ -98,24 +98,36 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
             </Link>
           </div>
           
-          <div className={`grid gap-2 mb-4`} style={{ gridTemplateColumns: `repeat(${enabledColumns.length}, minmax(0, 1fr))` }}>
-            {enabledColumns.map((column) => (
-              <div key={column} className="text-center">
-                <div className="text-xs font-medium text-gray-600 mb-2">{column}</div>
-                <div className="space-y-1">
-                  {groupedSections[column]
-                    ?.sort((a, b) => b.layer - a.layer) // Sort layers from 4 to 1 (top to bottom)
-                    .map((section) => (
-                      <LocationCell key={`${section.column}-${section.layer}`} section={section} />
-                    ))}
+          <div className="flex gap-4 mb-4">
+            {/* Layer numbers on the left */}
+            <div className="flex flex-col justify-start pt-6">
+              {[1, 2, 3, 4].map((layer) => (
+                <div key={layer} className="h-8 flex items-center justify-center text-xs font-medium text-gray-500 mb-1">
+                  {layer}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            
+            {/* Cellar grid */}
+            <div className={`grid gap-2 flex-1`} style={{ gridTemplateColumns: `repeat(${enabledColumns.length}, minmax(0, 1fr))` }}>
+              {enabledColumns.map((column) => (
+                <div key={column} className="text-center">
+                  <div className="text-xs font-medium text-gray-600 mb-2">{column}</div>
+                  <div className="space-y-1">
+                    {groupedSections[column]
+                      ?.sort((a, b) => a.layer - b.layer) // Sort layers from 1 to 4 (top to bottom)
+                      .map((section) => (
+                        <LocationCell key={`${section.column}-${section.layer}`} section={section} />
+                      ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           
           <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
-            <span>Layer 4 (Top)</span>
-            <span>Layer 1 (Bottom)</span>
+            <span>Layer 1 (Top)</span>
+            <span>Layer 4 (Bottom)</span>
           </div>
           
           <div className="bg-gray-50 p-4 rounded-lg">
