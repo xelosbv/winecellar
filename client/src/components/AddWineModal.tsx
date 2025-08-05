@@ -15,6 +15,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { searchWineDatabase } from "@/lib/wineApi";
 import { useToast } from "@/hooks/use-toast";
 import { Search, X } from "lucide-react";
+import LocationGridSelector from "./LocationGridSelector";
 
 interface AddWineModalProps {
   isOpen: boolean;
@@ -319,55 +320,43 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
                 )}
               />
 
+            </div>
+
+            {/* Location Grid Selector - Full Width */}
+            <div className="col-span-full">
               <FormField
                 control={form.control}
                 name="column"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Column *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="A">Column A</SelectItem>
-                        <SelectItem value="B">Column B</SelectItem>
-                        <SelectItem value="C">Column C</SelectItem>
-                        <SelectItem value="D">Column D</SelectItem>
-                        <SelectItem value="E">Column E</SelectItem>
-                        <SelectItem value="F">Column F</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
+                render={({ field: columnField }) => (
+                  <FormField
+                    control={form.control}
+                    name="layer"
+                    render={({ field: layerField }) => (
+                      <FormItem>
+                        <FormLabel>Wine Location *</FormLabel>
+                        <FormControl>
+                          <LocationGridSelector
+                            selectedColumn={columnField.value}
+                            selectedLayer={layerField.value}
+                            onLocationSelect={(column, layer) => {
+                              columnField.onChange(column);
+                              layerField.onChange(layer);
+                            }}
+                          />
+                        </FormControl>
+                        {(form.formState.errors.column || form.formState.errors.layer) && (
+                          <div className="text-sm text-red-500">
+                            Please select a wine location
+                          </div>
+                        )}
+                      </FormItem>
+                    )}
+                  />
                 )}
               />
+            </div>
 
-              <FormField
-                control={form.control}
-                name="layer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Layer *</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select layer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="1">Layer 1 (Bottom)</SelectItem>
-                        <SelectItem value="2">Layer 2</SelectItem>
-                        <SelectItem value="3">Layer 3</SelectItem>
-                        <SelectItem value="4">Layer 4 (Top)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
               <FormField
                 control={form.control}

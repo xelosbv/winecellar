@@ -80,8 +80,8 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
   });
 
   // Get unique years and countries for filter options
-  const uniqueYears = [...new Set(wines.map(w => w.year).filter(Boolean))].sort((a, b) => b - a);
-  const uniqueCountries = [...new Set(wines.map(w => (w as any).countryName).filter(Boolean))].sort();
+  const uniqueYears = Array.from(new Set(wines.map(w => w.year).filter(Boolean))).sort((a, b) => b - a);
+  const uniqueCountries = Array.from(new Set(wines.map(w => (w as any).countryName).filter(Boolean))).sort();
 
   const handleDeleteWine = (id: string) => {
     if (confirm("Are you sure you want to delete this wine?")) {
