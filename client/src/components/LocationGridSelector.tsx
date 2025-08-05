@@ -136,36 +136,44 @@ export default function LocationGridSelector({
           {/* Grid */}
           <div className="space-y-3">
             {/* Layer labels on top */}
-            <div className="flex justify-between items-center text-xs text-gray-500 px-4">
+            <div className="flex justify-between items-center text-xs text-gray-500 ml-8">
               <span>Layer 1 (Top)</span>
               <span>Layer 4 (Bottom)</span>
             </div>
             
-            {/* Column grid */}
-            <div className="space-y-2">
-              {enabledColumns.map(column => {
-                const columnSections = groupedSections[column].sort((a, b) => a.layer - b.layer);
-                return (
-                  <div key={column} className="flex items-center gap-2">
-                    <div className="w-6 text-center text-sm font-medium text-gray-700">
-                      {column}
-                    </div>
-                    <div className="flex gap-1">
-                      {columnSections.map(section => (
-                        <LocationCell key={`${section.column}-${section.layer}`} section={section} />
-                      ))}
-                    </div>
+            {/* Grid layout: columns vertically, layers horizontally */}
+            <div className="flex gap-2">
+              {/* Column labels on the left */}
+              <div className="flex flex-col gap-1 pt-6">
+                {enabledColumns.map(column => (
+                  <div key={column} className="h-12 w-6 flex items-center justify-center text-sm font-medium text-gray-700">
+                    {column}
                   </div>
-                );
-              })}
-            </div>
-            
-            {/* Layer numbers at bottom */}
-            <div className="flex justify-center">
-              <div className="flex gap-1 text-xs text-gray-500">
-                {[1, 2, 3, 4].map(layer => (
-                  <div key={layer} className="w-12 text-center">
-                    {layer}
+                ))}
+              </div>
+              
+              {/* Grid cells */}
+              <div className="flex flex-col gap-1">
+                {/* Layer numbers at top */}
+                <div className="flex gap-1 mb-1">
+                  {[1, 2, 3, 4].map(layer => (
+                    <div key={layer} className="w-12 h-6 flex items-center justify-center text-xs text-gray-500">
+                      {layer}
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Grid rows (one per column) */}
+                {enabledColumns.map(column => (
+                  <div key={column} className="flex gap-1">
+                    {[1, 2, 3, 4].map(layer => {
+                      const section = groupedSections[column]?.find(s => s.layer === layer);
+                      return section ? (
+                        <LocationCell key={`${section.column}-${section.layer}`} section={section} />
+                      ) : (
+                        <div key={`${column}-${layer}`} className="h-12 w-12 bg-gray-100 border border-gray-200 rounded opacity-50"></div>
+                      );
+                    })}
                   </div>
                 ))}
               </div>
