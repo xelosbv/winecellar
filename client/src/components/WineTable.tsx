@@ -140,47 +140,129 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
           <div className="divide-y divide-gray-200">
             {filteredWines.map((wine) => (
               <div key={wine.id} className="p-4 hover:bg-gray-50 transition-colors">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-                  {/* Actions - moved to beginning */}
-                  <div className="lg:col-span-2 order-2 lg:order-1">
-                    <div className="flex lg:flex-col xl:flex-row gap-2 justify-center lg:justify-start">
+                {/* Mobile Layout */}
+                <div className="block md:hidden">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center flex-1 min-w-0">
+                      <div className="w-10 h-10 bg-wine/10 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                        <Wine className="text-wine w-5 h-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-medium text-gray-900 truncate">{wine.name}</div>
+                        <div className="text-sm text-gray-500 truncate">{wine.producer}</div>
+                      </div>
+                    </div>
+                    
+                    {/* Mobile Actions */}
+                    <div className="flex gap-1 flex-shrink-0">
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-wine hover:text-wine-light flex-shrink-0"
+                        className="text-wine hover:text-wine-light"
                         onClick={() => setSelectedWineForView(wine)}
                         title="View details"
                       >
                         <Eye className="w-4 h-4" />
-                        <span className="ml-2 lg:hidden xl:inline">View</span>
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+                        className="text-gray-400 hover:text-gray-600"
                         onClick={() => setSelectedWineForEdit(wine)}
                         title="Edit wine"
                       >
                         <Edit className="w-4 h-4" />
-                        <span className="ml-2 lg:hidden xl:inline">Edit</span>
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="text-red-400 hover:text-red-600 flex-shrink-0"
+                        className="text-red-400 hover:text-red-600"
                         onClick={() => handleDeleteWine(wine.id)}
                         disabled={deleteWineMutation.isPending}
                         title="Delete wine"
                       >
                         <Trash2 className="w-4 h-4" />
-                        <span className="ml-2 lg:hidden xl:inline">Delete</span>
                       </Button>
                     </div>
                   </div>
+                  
+                  {/* Mobile Details */}
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Type</div>
+                      <Badge 
+                        className={`${wineTypeColors[wine.type as keyof typeof wineTypeColors] || "bg-gray-100 text-gray-800"} text-xs`}
+                      >
+                        {wine.type?.charAt(0).toUpperCase() + wine.type?.slice(1)}
+                      </Badge>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Year</div>
+                      <div className="text-gray-900 font-medium">{wine.year || "N/A"}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Location</div>
+                      <div className="text-gray-900 font-medium">{wine.column}-{wine.layer}</div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Bottles</div>
+                      <div className="text-gray-900 font-medium">
+                        {wine.quantity || 1}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Value</div>
+                      <div className="text-gray-900 font-medium">
+                        {wine.price ? `$${parseFloat(wine.price).toLocaleString()}` : "N/A"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Country</div>
+                      <div className="text-gray-900 font-medium truncate">{(wine as any).countryName || "N/A"}</div>
+                    </div>
+                  </div>
+                </div>
 
-                  {/* Wine Info */}
-                  <div className="lg:col-span-4 order-1 lg:order-2">
-                    <div className="flex items-center">
+                {/* Desktop Layout */}
+                <div className="hidden md:block">
+                  <div className="flex items-center gap-6">
+                    {/* Actions - moved to beginning */}
+                    <div className="flex gap-2 flex-shrink-0">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-wine hover:text-wine-light"
+                        onClick={() => setSelectedWineForView(wine)}
+                        title="View details"
+                      >
+                        <Eye className="w-4 h-4" />
+                        <span className="ml-2 hidden lg:inline">View</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-gray-400 hover:text-gray-600"
+                        onClick={() => setSelectedWineForEdit(wine)}
+                        title="Edit wine"
+                      >
+                        <Edit className="w-4 h-4" />
+                        <span className="ml-2 hidden lg:inline">Edit</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-red-400 hover:text-red-600"
+                        onClick={() => handleDeleteWine(wine.id)}
+                        disabled={deleteWineMutation.isPending}
+                        title="Delete wine"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        <span className="ml-2 hidden lg:inline">Delete</span>
+                      </Button>
+                    </div>
+
+                    {/* Wine Info */}
+                    <div className="flex items-center min-w-0 flex-1">
                       <div className="w-10 h-10 bg-wine/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                         <Wine className="text-wine w-5 h-5" />
                       </div>
@@ -189,13 +271,11 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
                         <div className="text-sm text-gray-500 truncate">{wine.producer}</div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Wine Details Grid */}
-                  <div className="lg:col-span-6 order-3">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 text-sm">
-                      <div>
-                        <div className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Type</div>
+                    {/* Wine Details */}
+                    <div className="flex items-center gap-6 text-sm flex-shrink-0">
+                      <div className="text-center">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Type</div>
                         <Badge 
                           className={`${wineTypeColors[wine.type as keyof typeof wineTypeColors] || "bg-gray-100 text-gray-800"} text-xs`}
                         >
@@ -203,34 +283,33 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
                         </Badge>
                       </div>
                       
-                      <div>
-                        <div className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Year</div>
+                      <div className="text-center">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Year</div>
                         <div className="text-gray-900 font-medium">{wine.year || "N/A"}</div>
                       </div>
                       
-                      <div>
-                        <div className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Country</div>
-                        <div className="text-gray-900 font-medium truncate">{(wine as any).countryName || "N/A"}</div>
+                      <div className="text-center hidden lg:block">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Country</div>
+                        <div className="text-gray-900 font-medium">{(wine as any).countryName || "N/A"}</div>
                       </div>
                       
-                      <div>
-                        <div className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Location</div>
+                      <div className="text-center">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Location</div>
                         <div className="text-gray-900 font-medium">{wine.column}-{wine.layer}</div>
                       </div>
                       
-                      <div>
-                        <div className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Bottles</div>
+                      <div className="text-center">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Bottles</div>
                         <div className="text-gray-900 font-medium">
-                          {wine.quantity || 1} bottle{(wine.quantity || 1) !== 1 ? 's' : ''}
+                          {wine.quantity || 1}
                         </div>
                       </div>
-                    </div>
-                    
-                    {/* Value on separate row for mobile */}
-                    <div className="mt-3 lg:mt-2">
-                      <div className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Value</div>
-                      <div className="text-gray-900 font-medium">
-                        {wine.price ? `$${parseFloat(wine.price).toLocaleString()}` : "N/A"}
+                      
+                      <div className="text-center">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Value</div>
+                        <div className="text-gray-900 font-medium">
+                          {wine.price ? `$${parseFloat(wine.price).toLocaleString()}` : "N/A"}
+                        </div>
                       </div>
                     </div>
                   </div>
