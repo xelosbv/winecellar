@@ -135,38 +135,38 @@ export default function LocationGridSelector({
 
           {/* Grid */}
           <div className="space-y-3">
-            {/* Layer labels on top */}
+            {/* Column labels on top */}
             <div className="flex justify-between items-center text-xs text-gray-500 ml-8">
-              <span>Layer 1 (Top)</span>
-              <span>Layer 4 (Bottom)</span>
+              <span>Column A</span>
+              <span>Column E</span>
             </div>
             
-            {/* Grid layout: columns vertically, layers horizontally */}
+            {/* Grid layout: layers vertically, columns horizontally */}
             <div className="flex gap-2">
-              {/* Column labels on the left */}
+              {/* Layer labels on the left */}
               <div className="flex flex-col gap-1 pt-6">
-                {enabledColumns.map(column => (
-                  <div key={column} className="h-12 w-6 flex items-center justify-center text-sm font-medium text-gray-700">
-                    {column}
+                {[1, 2, 3, 4].map(layer => (
+                  <div key={layer} className="h-12 w-6 flex items-center justify-center text-xs text-gray-500">
+                    {layer}
                   </div>
                 ))}
               </div>
               
               {/* Grid cells */}
               <div className="flex flex-col gap-1">
-                {/* Layer numbers at top */}
+                {/* Column letters at top */}
                 <div className="flex gap-1 mb-1">
-                  {[1, 2, 3, 4].map(layer => (
-                    <div key={layer} className="w-12 h-6 flex items-center justify-center text-xs text-gray-500">
-                      {layer}
+                  {enabledColumns.map(column => (
+                    <div key={column} className="w-12 h-6 flex items-center justify-center text-sm font-medium text-gray-700">
+                      {column}
                     </div>
                   ))}
                 </div>
                 
-                {/* Grid rows (one per column) */}
-                {enabledColumns.map(column => (
-                  <div key={column} className="flex gap-1">
-                    {[1, 2, 3, 4].map(layer => {
+                {/* Grid rows (one per layer) */}
+                {[1, 2, 3, 4].map(layer => (
+                  <div key={layer} className="flex gap-1">
+                    {enabledColumns.map(column => {
                       const section = groupedSections[column]?.find(s => s.layer === layer);
                       return section ? (
                         <LocationCell key={`${section.column}-${section.layer}`} section={section} />
