@@ -61,6 +61,20 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        wine: {
+          DEFAULT: "var(--wine)",
+          light: "var(--wine-light)",
+          50: "hsl(0, 100%, 97%)",
+          100: "hsl(0, 100%, 95%)",
+          200: "hsl(0, 100%, 90%)",
+          300: "hsl(0, 100%, 80%)",
+          400: "hsl(0, 100%, 70%)",
+          500: "hsl(0, 100%, 60%)",
+          600: "hsl(0, 100%, 45%)",
+          700: "hsl(0, 100%, 35%)",
+          800: "hsl(0, 100%, 27%)",
+          900: "hsl(0, 100%, 20%)",
+        },
       },
       keyframes: {
         "accordion-down": {

@@ -158,7 +158,7 @@ export default function Home() {
             </Dialog>
           </div>
 
-          {cellars && cellars.length > 0 ? (
+          {cellars?.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {cellars.map((cellar) => (
                 <Link key={cellar.id} href={`/cellar/${cellar.id}`}>
@@ -185,17 +185,18 @@ export default function Home() {
             </div>
           ) : (
             <Card className="border-wine-200 dark:border-wine-800">
-              <CardContent className="flex flex-col items-center justify-center py-12">
+              <CardContent className="flex flex-col items-center justify-center py-12 px-6">
                 <Wine className="h-16 w-16 text-wine-400 dark:text-wine-600 mb-4" />
-                <h3 className="text-xl font-semibold text-wine-900 dark:text-wine-100 mb-2">
+                <h3 className="text-xl font-semibold text-wine-900 dark:text-wine-100 mb-2 text-center">
                   No cellars yet
                 </h3>
-                <p className="text-wine-700 dark:text-wine-300 text-center mb-4">
+                <p className="text-wine-700 dark:text-wine-300 text-center mb-6 text-sm sm:text-base">
                   Create your first wine cellar to start organizing your collection
                 </p>
                 <Button
                   onClick={() => setIsCreateDialogOpen(true)}
-                  className="bg-wine-600 hover:bg-wine-700 dark:bg-wine-500 dark:hover:bg-wine-600"
+                  className="bg-wine-600 hover:bg-wine-700 text-white font-medium px-6 py-2 w-full sm:w-auto shadow-lg"
+                  size="lg"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Cellar
