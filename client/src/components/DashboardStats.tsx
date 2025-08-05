@@ -10,9 +10,13 @@ interface Stats {
   totalBottles: number;
 }
 
-export default function DashboardStats() {
+interface DashboardStatsProps {
+  cellarId: string;
+}
+
+export default function DashboardStats({ cellarId }: DashboardStatsProps) {
   const { data: stats, isLoading } = useQuery<Stats>({
-    queryKey: ["/api/stats"],
+    queryKey: [`/api/cellars/${cellarId}/stats`],
   });
 
   if (isLoading) {

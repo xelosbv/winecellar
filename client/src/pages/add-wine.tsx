@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useParams } from "wouter";
 import Header from "@/components/Header";
 import AddWineModal from "@/components/AddWineModal";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,11 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Wine } from "lucide-react";
 
 export default function AddWine() {
+  const { cellarId } = useParams();
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(true);
+
+  if (!cellarId) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onAddWine={() => setIsAddWineModalOpen(true)} />
+      <Header cellarId={cellarId} onAddWine={() => setIsAddWineModalOpen(true)} />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!isAddWineModalOpen && (
@@ -32,6 +38,7 @@ export default function AddWine() {
       </main>
 
       <AddWineModal 
+        cellarId={cellarId}
         isOpen={isAddWineModalOpen} 
         onClose={() => setIsAddWineModalOpen(false)} 
       />

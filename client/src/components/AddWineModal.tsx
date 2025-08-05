@@ -18,12 +18,13 @@ import { Search, X } from "lucide-react";
 import LocationGridSelector from "./LocationGridSelector";
 
 interface AddWineModalProps {
+  cellarId: string;
   isOpen: boolean;
   onClose: () => void;
   prefilledLocation?: { column: string; layer: number } | null;
 }
 
-export default function AddWineModal({ isOpen, onClose, prefilledLocation }: AddWineModalProps) {
+export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocation }: AddWineModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<WineSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -57,12 +58,12 @@ export default function AddWineModal({ isOpen, onClose, prefilledLocation }: Add
 
   const addWineMutation = useMutation({
     mutationFn: async (data: InsertWine) => {
-      const response = await apiRequest("POST", "/api/wines", data);
+      const response = await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/wines`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/stats`] });
       toast({
         title: "Wine added successfully",
         description: "Your wine has been added to the collection.",

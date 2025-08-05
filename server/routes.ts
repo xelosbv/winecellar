@@ -1,16 +1,58 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertWineSchema, insertCountrySchema, insertCellarSectionSchema } from "@shared/schema";
+import { setupAuth, isAuthenticated } from "./replitAuth";
+import { insertWineSchema, insertCellarSchema, insertCountrySchema, insertCellarSectionSchema } from "@shared/schema";
 import { z } from "zod";
 import * as fs from "fs";
 import * as path from "path";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Wine routes
-  app.get("/api/wines", async (req, res) => {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const wines = await storage.getAllWines();
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Cellar routes
+  app.get("/api/cellars", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const cellars = await storage.getUserCellars(userId);
+      res.json(cellars);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cellars" });
+    }
+  });
+
+  app.post("/api/cellars", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = insertCellarSchema.parse({ ...req.body, userId });
+      const cellar = await storage.createCellar(validatedData);
+      res.status(201).json(cellar);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid cellar data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create cellar" });
+    }
+  });
+
+  // Wine routes (now cellar-specific)
+  app.get("/api/cellars/:cellarId/wines", isAuthenticated, async (req, res) => {
+    try {
+      const { cellarId } = req.params;
+      const wines = await storage.getCellarWines(cellarId);
       // Fetch country names for each wine
       const winesWithCountries = await Promise.all(
         wines.map(async (wine) => {
@@ -27,34 +69,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/wines/search", async (req, res) => {
+  app.get("/api/cellars/:cellarId/wines/search", isAuthenticated, async (req, res) => {
     try {
+      const { cellarId } = req.params;
       const { q } = req.query;
       if (!q || typeof q !== 'string') {
         return res.status(400).json({ error: "Query parameter 'q' is required" });
       }
-      const wines = await storage.searchWines(q);
+      const wines = await storage.searchWines(cellarId, q);
       res.json(wines);
     } catch (error) {
       res.status(500).json({ error: "Failed to search wines" });
     }
   });
 
-  app.get("/api/wines/location/:column/:layer", async (req, res) => {
+  app.get("/api/cellars/:cellarId/wines/location/:column/:layer", isAuthenticated, async (req, res) => {
     try {
-      const { column, layer } = req.params;
+      const { cellarId, column, layer } = req.params;
       const layerNum = parseInt(layer);
       if (isNaN(layerNum)) {
         return res.status(400).json({ error: "Layer must be a number" });
       }
-      const wines = await storage.getWinesByLocation(column, layerNum);
+      const wines = await storage.getWinesByLocation(cellarId, column, layerNum);
       res.json(wines);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch wines by location" });
     }
   });
-
-  app.get("/api/wines/:id", async (req, res) => {
+  app.get("/api/wines/:id", isAuthenticated, async (req, res) => {
     try {
       const wine = await storage.getWine(req.params.id);
       if (!wine) {
@@ -66,7 +108,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/wines", async (req, res) => {
+  app.post("/api/wines", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertWineSchema.parse(req.body);
       const wine = await storage.createWine(validatedData);
@@ -79,7 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/wines/:id", async (req, res) => {
+  app.put("/api/wines/:id", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertWineSchema.partial().parse(req.body);
       const wine = await storage.updateWine(req.params.id, validatedData);
@@ -95,7 +137,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wines/:id", async (req, res) => {
+  app.delete("/api/wines/:id", isAuthenticated, async (req, res) => {
     try {
       const deleted = await storage.deleteWine(req.params.id);
       if (!deleted) {
@@ -107,26 +149,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Cellar routes
-  app.get("/api/cellar/columns", async (req, res) => {
+  // Cellar layout routes (now cellar-specific)
+  app.get("/api/cellars/:cellarId/columns", isAuthenticated, async (req, res) => {
     try {
-      const columns = await storage.getAllCellarColumns();
+      const { cellarId } = req.params;
+      const columns = await storage.getCellarColumns(cellarId);
       res.json(columns);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cellar columns" });
     }
   });
 
-  app.get("/api/cellar/sections", async (req, res) => {
+  app.get("/api/cellars/:cellarId/sections", isAuthenticated, async (req, res) => {
     try {
-      const sections = await storage.getAllCellarSections();
+      const { cellarId } = req.params;
+      const sections = await storage.getCellarSections(cellarId);
       res.json(sections);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cellar sections" });
     }
   });
 
-  app.put("/api/cellar/sections/:id", async (req, res) => {
+  app.put("/api/cellar/sections/:id", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertCellarSectionSchema.partial().parse(req.body);
       const section = await storage.updateCellarSection(req.params.id, validatedData);
@@ -205,15 +249,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Statistics routes
-  app.get("/api/stats", async (req, res) => {
+  // Statistics routes (now cellar-specific)
+  app.get("/api/cellars/:cellarId/stats", isAuthenticated, async (req, res) => {
     try {
+      const { cellarId } = req.params;
       const [totalWines, locations, premiumWines, totalValue, totalBottles] = await Promise.all([
-        storage.getWineCount(),
-        storage.getLocationCount(),
-        storage.getPremiumWineCount(),
-        storage.getTotalCollectionValue(),
-        storage.getTotalBottleCount()
+        storage.getCellarWineCount(cellarId),
+        storage.getCellarLocationCount(cellarId),
+        storage.getCellarPremiumWineCount(cellarId),
+        storage.getCellarTotalValue(cellarId),
+        storage.getCellarTotalBottles(cellarId)
       ]);
 
       res.json({

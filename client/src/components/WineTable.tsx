@@ -21,11 +21,12 @@ const wineTypeColors = {
 };
 
 interface WineTableProps {
+  cellarId: string;
   locationFilter?: { column: string; layer: number } | null;
   onClearLocationFilter?: () => void;
 }
 
-export default function WineTable({ locationFilter, onClearLocationFilter }: WineTableProps) {
+export default function WineTable({ cellarId, locationFilter, onClearLocationFilter }: WineTableProps) {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [yearFilter, setYearFilter] = useState<string>("all");
@@ -37,16 +38,16 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
   const queryClient = useQueryClient();
 
   const { data: wines = [], isLoading } = useQuery<WineType[]>({
-    queryKey: ["/api/wines"],
+    queryKey: [`/api/cellars/${cellarId}/wines`],
   });
 
   const deleteWineMutation = useMutation({
     mutationFn: async (id: string) => {
-      await apiRequest("DELETE", `/api/wines/${id}`);
+      await apiRequest("DELETE", `/api/cellars/${cellarId}/wines/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/wines`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/stats`] });
       toast({
         title: "Wine deleted",
         description: "The wine has been removed from your collection.",
@@ -80,7 +81,7 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
   });
 
   // Get unique years and countries for filter options
-  const uniqueYears = Array.from(new Set(wines.map(w => w.year).filter(Boolean))).sort((a, b) => b - a);
+  const uniqueYears = Array.from(new Set(wines.map(w => w.year).filter((year): year is number => year !== null && year !== undefined))).sort((a, b) => b - a);
   const uniqueCountries = Array.from(new Set(wines.map(w => (w as any).countryName).filter(Boolean))).sort();
 
   const handleDeleteWine = (id: string) => {
@@ -172,7 +173,7 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
                 <SelectContent>
                   <SelectItem value="all">All Years</SelectItem>
                   {uniqueYears.map(year => (
-                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    <SelectItem key={year} value={year!.toString()}>{year}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

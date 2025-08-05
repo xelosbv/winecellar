@@ -14,19 +14,20 @@ interface CellarLocation {
 }
 
 interface CellarVisualizationProps {
+  cellarId: string;
   onLocationClick?: (column: string, layer: number) => void;
 }
 
-export default function CellarVisualization({ onLocationClick }: CellarVisualizationProps) {
+export default function CellarVisualization({ cellarId, onLocationClick }: CellarVisualizationProps) {
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{column: string, layer: number} | null>(null);
 
   const { data: wines = [] } = useQuery<WineType[]>({
-    queryKey: ["/api/wines"],
+    queryKey: [`/api/cellars/${cellarId}/wines`],
   });
 
   const { data: cellarSections = [] } = useQuery<CellarSection[]>({
-    queryKey: ["/api/cellar/sections"],
+    queryKey: [`/api/cellars/${cellarId}/sections`],
   });
 
   // Create a map of location to bottle count (considering quantities)
@@ -164,6 +165,7 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
       </Card>
       
       <AddWineModal 
+        cellarId={cellarId}
         isOpen={isAddWineModalOpen} 
         onClose={() => {
           setIsAddWineModalOpen(false);

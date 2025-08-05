@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const insertCountrySchema = z.object({
 type SettingsTab = "countries" | "cellar";
 
 export default function Settings() {
+  const { cellarId } = useParams();
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState<SettingsTab>("countries");
 
@@ -40,7 +42,8 @@ export default function Settings() {
   });
 
   const { data: cellarSections = [], isLoading: sectionsLoading } = useQuery<CellarSection[]>({
-    queryKey: ["/api/cellar/sections"],
+    queryKey: [`/api/cellars/${cellarId}/sections`],
+    enabled: !!cellarId,
   });
 
   const createCountryMutation = useMutation({
