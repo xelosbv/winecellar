@@ -37,9 +37,8 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
     locationMap.set(key, (locationMap.get(key) || 0) + bottleCount);
   });
 
-  // Filter only enabled sections and group by column
-  const enabledSections = cellarSections.filter(section => section.isEnabled === "true");
-  const groupedSections = enabledSections.reduce((acc, section) => {
+  // Group all sections by column (both enabled and disabled)
+  const groupedSections = cellarSections.reduce((acc, section) => {
     if (!acc[section.column]) {
       acc[section.column] = [];
     }
@@ -47,8 +46,10 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
     return acc;
   }, {} as Record<string, CellarSection[]>);
 
-  // Get unique columns and sort them
-  const enabledColumns = Object.keys(groupedSections).sort();
+  // Get columns that have at least one enabled section
+  const enabledColumns = Object.keys(groupedSections)
+    .filter(column => groupedSections[column].some(section => section.isEnabled === "true"))
+    .sort();
 
   const getLocationCount = (column: string, layer: number): number => {
     return locationMap.get(`${column}-${layer}`) || 0;
@@ -57,8 +58,14 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
   const LocationCell = ({ section }: { section: CellarSection }) => {
     const count = getLocationCount(section.column, section.layer);
     const hasWines = count > 0;
+    const isEnabled = section.isEnabled === "true";
 
     const handleClick = () => {
+      if (!isEnabled) {
+        // Don't allow interaction with disabled sections
+        return;
+      }
+      
       if (hasWines) {
         // Filter wines by this location when clicking on numbered cells
         onLocationClick?.(section.column, section.layer);
@@ -71,15 +78,21 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
 
     return (
       <div
-        className={`h-8 rounded border cursor-pointer transition-colors flex items-center justify-center text-xs font-medium ${
-          hasWines
-            ? "bg-gradient-to-b from-wine/20 to-wine/40 border-wine/30 text-wine hover:from-wine/30 hover:to-wine/50"
-            : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200"
+        className={`h-8 rounded border transition-colors flex items-center justify-center text-xs font-medium ${
+          !isEnabled
+            ? "bg-gray-50 border-gray-300 text-gray-300 cursor-not-allowed" // Disabled state
+            : hasWines
+            ? "bg-gradient-to-b from-wine/20 to-wine/40 border-wine/30 text-wine hover:from-wine/30 hover:to-wine/50 cursor-pointer"
+            : "bg-gray-100 border-gray-200 text-gray-400 hover:bg-gray-200 cursor-pointer"
         }`}
-        title={`${section.column}-${section.layer}: ${count} bottle${count !== 1 ? 's' : ''}`}
+        title={
+          !isEnabled 
+            ? `${section.column}-${section.layer}: Disabled`
+            : `${section.column}-${section.layer}: ${count} bottle${count !== 1 ? 's' : ''}`
+        }
         onClick={handleClick}
       >
-        {hasWines ? count : <Plus className="w-3 h-3" />}
+        {!isEnabled ? "✕" : hasWines ? count : <Plus className="w-3 h-3" />}
       </div>
     );
   };
@@ -140,6 +153,10 @@ export default function CellarVisualization({ onLocationClick }: CellarVisualiza
               <div className="flex items-center">
                 <div className="w-4 h-4 bg-gray-100 rounded border border-gray-200 mr-2"></div>
                 <span className="text-gray-600">Empty slot</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-4 h-4 bg-gray-50 rounded border border-gray-300 mr-2 flex items-center justify-center text-gray-300 text-xs">✕</div>
+                <span className="text-gray-600">Disabled</span>
               </div>
             </div>
           </div>
