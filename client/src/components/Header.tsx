@@ -12,7 +12,6 @@ export default function Header({ onAddWine }: HeaderProps) {
   const navItems = [
     { path: "/", label: "Dashboard" },
     { path: "/wines", label: "My Wines" },
-    { path: "/add-wine", label: "Add Wine" },
   ];
 
   return (
