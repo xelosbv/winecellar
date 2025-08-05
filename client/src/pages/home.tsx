@@ -62,14 +62,14 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-wine-50 to-wine-100 dark:from-wine-950 dark:to-wine-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div className="flex items-center space-x-4">
             <Wine className="h-8 w-8 text-wine-600 dark:text-wine-400" />
             <div>
-              <h1 className="text-3xl font-bold text-wine-900 dark:text-wine-100">
+              <h1 className="text-2xl sm:text-3xl font-bold text-wine-900 dark:text-wine-100">
                 Wine Cellar Manager
               </h1>
-              <p className="text-wine-700 dark:text-wine-300">
+              <p className="text-wine-700 dark:text-wine-300 text-sm sm:text-base">
                 Welcome back, {(user as any)?.firstName || (user as any)?.email}
               </p>
             </div>
@@ -77,7 +77,7 @@ export default function Home() {
           <Button
             variant="outline"
             onClick={() => window.location.href = '/api/logout'}
-            className="border-wine-600 text-wine-600 hover:bg-wine-600 hover:text-white dark:border-wine-400 dark:text-wine-400"
+            className="border-wine-600 text-wine-600 hover:bg-wine-600 hover:text-white dark:border-wine-400 dark:text-wine-400 w-full sm:w-auto"
           >
             <LogOut className="h-4 w-4 mr-2" />
             Sign Out
@@ -86,13 +86,13 @@ export default function Home() {
 
         {/* Cellars Grid */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
             <h2 className="text-2xl font-bold text-wine-900 dark:text-wine-100">
               Your Cellars
             </h2>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-wine-600 hover:bg-wine-700 dark:bg-wine-500 dark:hover:bg-wine-600">
+                <Button className="bg-wine-600 hover:bg-wine-700 dark:bg-wine-500 dark:hover:bg-wine-600 w-full sm:w-auto">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Cellar
                 </Button>
