@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Wine as WineType } from "@shared/schema";
-import { Wine, Eye, Edit, Trash2, Filter, X } from "lucide-react";
+import { Wine, Eye, Edit, Trash2, Filter, X, Search } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +27,10 @@ interface WineTableProps {
 
 export default function WineTable({ locationFilter, onClearLocationFilter }: WineTableProps) {
   const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [yearFilter, setYearFilter] = useState<string>("all");
+  const [countryFilter, setCountryFilter] = useState<string>("all");
+  const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedWineForView, setSelectedWineForView] = useState<WineType | null>(null);
   const [selectedWineForEdit, setSelectedWineForEdit] = useState<WineType | null>(null);
   const { toast } = useToast();
@@ -60,8 +65,23 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
     const matchesType = typeFilter === "all" || wine.type === typeFilter;
     const matchesLocation = !locationFilter || 
       (wine.column === locationFilter.column && wine.layer === locationFilter.layer);
-    return matchesType && matchesLocation;
+    
+    const matchesSearch = !searchQuery.trim() || 
+      wine.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      wine.producer?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (wine as any).countryName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      wine.year?.toString().includes(searchQuery);
+    
+    const matchesYear = yearFilter === "all" || wine.year?.toString() === yearFilter;
+    
+    const matchesCountry = countryFilter === "all" || (wine as any).countryName === countryFilter;
+    
+    return matchesType && matchesLocation && matchesSearch && matchesYear && matchesCountry;
   });
+
+  // Get unique years and countries for filter options
+  const uniqueYears = [...new Set(wines.map(w => w.year).filter(Boolean))].sort((a, b) => b - a);
+  const uniqueCountries = [...new Set(wines.map(w => (w as any).countryName).filter(Boolean))].sort();
 
   const handleDeleteWine = (id: string) => {
     if (confirm("Are you sure you want to delete this wine?")) {
@@ -82,7 +102,7 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
   return (
     <Card className="shadow-sm border border-gray-200">
       <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900">Wine Collection</h2>
             {locationFilter && (
@@ -102,25 +122,147 @@ export default function WineTable({ locationFilter, onClearLocationFilter }: Win
             )}
           </div>
           <div className="flex space-x-3">
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="red">Red Wine</SelectItem>
-                <SelectItem value="white">White Wine</SelectItem>
-                <SelectItem value="champagne">Champagne</SelectItem>
-                <SelectItem value="rosé">Rosé</SelectItem>
-                <SelectItem value="sparkling">Sparkling</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)}
+              className={showFilters ? "bg-wine/10 text-wine border-wine/30" : ""}
+            >
               <Filter className="w-4 h-4 mr-2" />
-              Filter
+              {showFilters ? "Hide Filters" : "Show Filters"}
             </Button>
           </div>
         </div>
+        
+        {/* Filter Controls */}
+        {showFilters && (
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="text-gray-400 w-4 h-4" />
+              </div>
+              <Input
+                className="pl-10"
+                placeholder="Search by name, producer, country, or year..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            
+            {/* Filter Dropdowns */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="red">Red Wine</SelectItem>
+                  <SelectItem value="white">White Wine</SelectItem>
+                  <SelectItem value="champagne">Champagne</SelectItem>
+                  <SelectItem value="rosé">Rosé</SelectItem>
+                  <SelectItem value="sparkling">Sparkling</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={yearFilter} onValueChange={setYearFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Years" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Years</SelectItem>
+                  {uniqueYears.map(year => (
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={countryFilter} onValueChange={setCountryFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Countries" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  {uniqueCountries.map(country => (
+                    <SelectItem key={country} value={country}>{country}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Active Filters Display */}
+            {(searchQuery || typeFilter !== "all" || yearFilter !== "all" || countryFilter !== "all") && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                <span className="text-sm text-gray-500">Active filters:</span>
+                {searchQuery && (
+                  <Badge variant="secondary" className="bg-blue-50 text-blue-700">
+                    Search: "{searchQuery}"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-blue-100"
+                      onClick={() => setSearchQuery("")}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+                {typeFilter !== "all" && (
+                  <Badge variant="secondary" className="bg-green-50 text-green-700">
+                    Type: {typeFilter}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-green-100"
+                      onClick={() => setTypeFilter("all")}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+                {yearFilter !== "all" && (
+                  <Badge variant="secondary" className="bg-purple-50 text-purple-700">
+                    Year: {yearFilter}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-purple-100"
+                      onClick={() => setYearFilter("all")}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+                {countryFilter !== "all" && (
+                  <Badge variant="secondary" className="bg-orange-50 text-orange-700">
+                    Country: {countryFilter}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-4 w-4 p-0 ml-1 hover:bg-orange-100"
+                      onClick={() => setCountryFilter("all")}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setTypeFilter("all");
+                    setYearFilter("all");
+                    setCountryFilter("all");
+                  }}
+                >
+                  Clear all
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
       <CardContent className="p-0">
