@@ -204,44 +204,54 @@ export default function Settings() {
           {sectionsLoading ? (
             <div className="text-center py-4">Loading cellar layout...</div>
           ) : (
-            <div className="space-y-4">
-              {Object.entries(groupedSections)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([column, sections]) => (
-                  <div key={column} className="border rounded-lg p-4">
-                    <h3 className="font-medium mb-3">Column {column}</h3>
-                    <div className="grid grid-cols-4 gap-2">
-                      {sections
-                        .sort((a, b) => a.layer - b.layer)
-                        .map((section) => (
-                          <div
-                            key={section.id}
-                            className={`
-                              relative p-3 border-2 rounded-lg cursor-pointer transition-all
-                              ${section.isEnabled === "true" 
-                                ? "border-wine bg-wine/10 text-wine" 
-                                : "border-gray-300 bg-gray-100 text-gray-500"
-                              }
-                            `}
-                            onClick={() => handleToggleSection(section)}
-                          >
-                            <div className="text-center">
+            <div className="flex gap-4">
+              {/* Layer numbers on the left */}
+              <div className="flex flex-col justify-start pt-6">
+                {[1, 2, 3, 4].map((layer) => (
+                  <div key={layer} className="h-16 flex items-center justify-center text-sm font-medium text-gray-500 mb-2">
+                    {layer}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Columns grid */}
+              <div className="flex-1 grid gap-2" style={{ gridTemplateColumns: `repeat(${Object.keys(groupedSections).length}, minmax(0, 1fr))` }}>
+                {Object.entries(groupedSections)
+                  .sort(([a], [b]) => a.localeCompare(b))
+                  .map(([column, sections]) => (
+                    <div key={column} className="text-center">
+                      <div className="text-sm font-medium text-gray-600 mb-2">Column {column}</div>
+                      <div className="space-y-2">
+                        {sections
+                          .sort((a, b) => a.layer - b.layer) // 1-4 from top to bottom
+                          .map((section) => (
+                            <div
+                              key={section.id}
+                              className={`
+                                relative p-3 border-2 rounded-lg cursor-pointer transition-all h-16 flex flex-col items-center justify-center
+                                ${section.isEnabled === "true" 
+                                  ? "border-wine bg-wine/10 text-wine" 
+                                  : "border-gray-300 bg-gray-100 text-gray-500"
+                                }
+                              `}
+                              onClick={() => handleToggleSection(section)}
+                            >
                               <div className="text-xs font-medium">
                                 {column}-{section.layer}
                               </div>
                               <div className="mt-1">
                                 {section.isEnabled === "true" ? (
-                                  <ToggleRight className="w-4 h-4 mx-auto" />
+                                  <ToggleRight className="w-4 h-4" />
                                 ) : (
-                                  <ToggleLeft className="w-4 h-4 mx-auto" />
+                                  <ToggleLeft className="w-4 h-4" />
                                 )}
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+              </div>
             </div>
           )}
         </CardContent>
