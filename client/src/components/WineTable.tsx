@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Wine as WineType } from "@shared/schema";
 import { Wine, Eye, Edit, Trash2, Filter, X, Search, ArrowRightLeft } from "lucide-react";
+import { PiWineLight, PiChampagneLight, PiMartiniLight } from "react-icons/pi";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
@@ -20,6 +21,28 @@ const wineTypeColors = {
   rosé: "bg-pink-100 text-pink-800",
   champagne: "bg-purple-100 text-purple-800",
   sparkling: "bg-blue-100 text-blue-800",
+};
+
+// Function to get appropriate wine glass icon and color based on type
+const getWineGlassIcon = (wineType: string | null | undefined) => {
+  switch (wineType?.toLowerCase()) {
+    case 'red':
+      return { icon: PiWineLight, color: 'text-red-600' };
+    case 'white':
+      return { icon: PiWineLight, color: 'text-yellow-600' };
+    case 'rosé':
+    case 'rose':
+      return { icon: PiWineLight, color: 'text-pink-600' };
+    case 'sparkling':
+    case 'champagne':
+      return { icon: PiChampagneLight, color: 'text-blue-600' };
+    case 'dessert':
+    case 'sweet':
+    case 'port':
+      return { icon: PiMartiniLight, color: 'text-amber-600' };
+    default:
+      return { icon: PiWineLight, color: 'text-gray-600' };
+  }
 };
 
 interface WineTableProps {
@@ -368,14 +391,10 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <div className="flex justify-center">
-                              <Wine className={`w-5 h-5 ${
-                                wine.type === 'red' ? 'text-red-600' :
-                                wine.type === 'white' ? 'text-yellow-600' :
-                                wine.type === 'rosé' ? 'text-pink-600' :
-                                wine.type === 'sparkling' ? 'text-blue-600' :
-                                wine.type === 'dessert' ? 'text-amber-600' :
-                                'text-wine'
-                              }`} />
+                              {(() => {
+                                const { icon: IconComponent, color } = getWineGlassIcon(wine.type);
+                                return <IconComponent className={`w-5 h-5 ${color}`} />;
+                              })()}
                             </div>
                           </TooltipTrigger>
                           <TooltipContent>
@@ -510,14 +529,10 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <div className="flex justify-center">
-                                <Wine className={`w-5 h-5 ${
-                                  wine.type === 'red' ? 'text-red-600' :
-                                  wine.type === 'white' ? 'text-yellow-600' :
-                                  wine.type === 'rosé' ? 'text-pink-600' :
-                                  wine.type === 'sparkling' ? 'text-blue-600' :
-                                  wine.type === 'dessert' ? 'text-amber-600' :
-                                  'text-wine'
-                                }`} />
+                                {(() => {
+                                  const { icon: IconComponent, color } = getWineGlassIcon(wine.type);
+                                  return <IconComponent className={`w-5 h-5 ${color}`} />;
+                                })()}
                               </div>
                             </TooltipTrigger>
                             <TooltipContent>
