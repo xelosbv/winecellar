@@ -375,9 +375,27 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       </div>
                     </div>
                     <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Volume</div>
+                      <div className="text-gray-900 font-medium">
+                        {wine.volume || "N/A"}
+                      </div>
+                    </div>
+                    <div>
                       <div className="text-gray-500 text-xs font-medium mb-1">Value</div>
                       <div className="text-gray-900 font-medium">
                         {wine.price ? `$${parseFloat(wine.price).toLocaleString()}` : "N/A"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Drink From</div>
+                      <div className="text-gray-900 font-medium">
+                        {wine.toDrinkFrom || "N/A"}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Drink Until</div>
+                      <div className="text-gray-900 font-medium">
+                        {wine.toDrinkUntil || "N/A"}
                       </div>
                     </div>
                     <div>
@@ -447,7 +465,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                     </div>
 
                     {/* Wine Details */}
-                    <div className="flex items-center gap-6 text-sm flex-shrink-0">
+                    <div className="flex items-center gap-4 text-sm flex-shrink-0">
                       <div className="text-center">
                         <div className="text-gray-500 text-xs font-medium mb-1">Type</div>
                         <Badge 
@@ -460,6 +478,21 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       <div className="text-center">
                         <div className="text-gray-500 text-xs font-medium mb-1">Year</div>
                         <div className="text-gray-900 font-medium">{wine.year || "N/A"}</div>
+                      </div>
+                      
+                      <div className="text-center hidden lg:block">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Volume</div>
+                        <div className="text-gray-900 font-medium">{wine.volume || "N/A"}</div>
+                      </div>
+
+                      <div className="text-center hidden xl:block">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Drink From</div>
+                        <div className="text-gray-900 font-medium">{wine.toDrinkFrom || "N/A"}</div>
+                      </div>
+
+                      <div className="text-center hidden xl:block">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Drink Until</div>
+                        <div className="text-gray-900 font-medium">{wine.toDrinkUntil || "N/A"}</div>
                       </div>
                       
                       <div className="text-center hidden lg:block">

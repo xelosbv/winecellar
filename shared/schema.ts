@@ -59,6 +59,9 @@ export const wines = pgTable("wines", {
   layer: integer("layer").notNull(), // 1-4
   price: decimal("price", { precision: 10, scale: 2 }),
   quantity: integer("quantity").notNull().default(1), // Number of bottles
+  volume: text("volume"), // 37.5cl, 75cl, 1.5l, 3l
+  toDrinkFrom: integer("to_drink_from"), // Year
+  toDrinkUntil: integer("to_drink_until"), // Year
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });

@@ -26,6 +26,8 @@ const editWineSchema = insertWineSchema.partial().extend({
   id: z.string(),
   year: z.string().optional(),
   price: z.string().optional(),
+  toDrinkFrom: z.string().optional(),
+  toDrinkUntil: z.string().optional(),
 });
 
 type EditWineFormData = z.infer<typeof editWineSchema>;
@@ -49,6 +51,9 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       column: wine.column,
       layer: wine.layer,
       price: wine.price || "",
+      volume: wine.volume || "",
+      toDrinkFrom: wine.toDrinkFrom?.toString() || "",
+      toDrinkUntil: wine.toDrinkUntil?.toString() || "",
       notes: wine.notes || "",
       countryId: wine.countryId || "",
       quantity: wine.quantity || 1,
@@ -67,6 +72,9 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       column: wine.column,
       layer: wine.layer,
       price: wine.price || "",
+      volume: wine.volume || "",
+      toDrinkFrom: wine.toDrinkFrom?.toString() || "",
+      toDrinkUntil: wine.toDrinkUntil?.toString() || "",
       notes: wine.notes || "",
       countryId: wine.countryId || "",
       quantity: wine.quantity || 1,
@@ -76,11 +84,13 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
   const updateWineMutation = useMutation({
     mutationFn: async (data: EditWineFormData) => {
       const { id, ...updateData } = data;
-      // Convert year to number if provided
+      // Convert numeric fields
       const formattedData = {
         ...updateData,
         year: updateData.year ? parseInt(updateData.year) : null,
         price: updateData.price || null,
+        toDrinkFrom: updateData.toDrinkFrom ? parseInt(updateData.toDrinkFrom) : null,
+        toDrinkUntil: updateData.toDrinkUntil ? parseInt(updateData.toDrinkUntil) : null,
       };
       return await apiRequest("PUT", `/api/wines/${id}`, formattedData);
     },
@@ -143,7 +153,7 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                   <FormItem>
                     <FormLabel>Producer *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter producer name" {...field} />
+                      <Input placeholder="Enter producer name" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -204,7 +214,7 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Country</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select country" />
@@ -231,7 +241,7 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                   <FormItem>
                     <FormLabel>Region</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Bordeaux" {...field} />
+                      <Input placeholder="e.g. Bordeaux" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -299,6 +309,75 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
               />
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Volume */}
+              <FormField
+                control={form.control}
+                name="volume"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bottle Volume</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select volume" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="37.5cl">37.5cl (Half bottle)</SelectItem>
+                        <SelectItem value="75cl">75cl (Standard)</SelectItem>
+                        <SelectItem value="1.5l">1.5L (Magnum)</SelectItem>
+                        <SelectItem value="3l">3L (Double Magnum)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* To Drink From */}
+              <FormField
+                control={form.control}
+                name="toDrinkFrom"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>To Drink From</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={2020}
+                        max={2060}
+                        placeholder="Year"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* To Drink Until */}
+              <FormField
+                control={form.control}
+                name="toDrinkUntil"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>To Drink Until</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={2020}
+                        max={2080}
+                        placeholder="Year"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
             {/* Notes */}
             <FormField
               control={form.control}
@@ -310,7 +389,8 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                     <Textarea 
                       placeholder="Add any notes about this wine..."
                       className="min-h-[100px]"
-                      {...field} 
+                      {...field}
+                      value={field.value || ""}
                     />
                   </FormControl>
                   <FormMessage />

@@ -53,6 +53,9 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       layer: prefilledLocation?.layer || undefined,
       price: "",
       quantity: 1,
+      volume: "",
+      toDrinkFrom: undefined,
+      toDrinkUntil: undefined,
       notes: "",
     },
   });
@@ -462,6 +465,76 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                control={form.control}
+                name="volume"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Bottle Volume</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select volume" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="37.5cl">37.5cl (Half bottle)</SelectItem>
+                        <SelectItem value="75cl">75cl (Standard)</SelectItem>
+                        <SelectItem value="1.5l">1.5L (Magnum)</SelectItem>
+                        <SelectItem value="3l">3L (Double Magnum)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="toDrinkFrom"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>To Drink From</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={2020}
+                        max={2060}
+                        placeholder="Year"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="toDrinkUntil"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>To Drink Until</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min={2020}
+                        max={2080}
+                        placeholder="Year"
+                        {...field}
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
