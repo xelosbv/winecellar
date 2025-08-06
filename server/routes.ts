@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { analyzeWineLabel } from "./wineAnalysis";
 import { insertWineSchema, insertCellarSchema, insertCountrySchema, insertCellarSectionSchema, transferWineSchema } from "@shared/schema";
 import { z } from "zod";
 import * as fs from "fs";
@@ -439,6 +440,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Wine dataset search error:", error);
       res.json([]);
+    }
+  });
+
+  // Wine label analysis route
+  app.post("/api/analyze-wine-label", isAuthenticated, async (req, res) => {
+    try {
+      const { image } = req.body;
+      
+      if (!image || typeof image !== 'string') {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Image data is required" 
+        });
+      }
+
+      const result = await analyzeWineLabel(image);
+      res.json(result);
+    } catch (error) {
+      console.error("Wine label analysis error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to analyze wine label" 
+      });
     }
   });
 

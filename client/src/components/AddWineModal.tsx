@@ -14,8 +14,9 @@ import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { searchWineDatabase } from "@/lib/wineApi";
 import { useToast } from "@/hooks/use-toast";
-import { Search, X } from "lucide-react";
+import { Search, X, Camera } from "lucide-react";
 import LocationGridSelector from "./LocationGridSelector";
+import CameraCapture from "./CameraCapture";
 
 interface AddWineModalProps {
   cellarId: string;
@@ -28,6 +29,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<WineSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -163,6 +165,30 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     setSearchQuery("");
   };
 
+  const handleCameraAnalysis = (wineData: any) => {
+    // Fill form with analyzed wine data
+    if (wineData.name) form.setValue("name", wineData.name);
+    if (wineData.producer) form.setValue("producer", wineData.producer);
+    if (wineData.year) form.setValue("year", wineData.year);
+    if (wineData.type) form.setValue("type", wineData.type.toLowerCase());
+    if (wineData.region) form.setValue("region", wineData.region);
+    
+    // Handle country mapping
+    if (wineData.country) {
+      const existingCountry = countries.find((c: any) => 
+        c.name.toLowerCase() === wineData.country.toLowerCase() ||
+        (wineData.country === 'US' && c.name.toLowerCase() === 'united states') ||
+        (wineData.country === 'United States' && c.name.toLowerCase() === 'us')
+      );
+      
+      if (existingCountry) {
+        form.setValue("countryId", existingCountry.id);
+      }
+    }
+    
+    setShowCamera(false);
+  };
+
   const onSubmit = (data: InsertWine) => {
     addWineMutation.mutate(data);
   };
@@ -211,9 +237,21 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Hidden cellarId field */}
             <input type="hidden" {...form.register("cellarId")} />
-            {/* Wine Search */}
+            {/* Wine Search and Camera */}
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2">Search Wine Database</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-sm font-medium text-gray-700">Search Wine Database</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowCamera(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Camera className="w-4 h-4" />
+                  Scan Label
+                </Button>
+              </div>
               <div className="relative">
                 <Input
                   placeholder="Type wine name to search..."
@@ -239,7 +277,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                   </button>
                 )}
               </div>
-              <p className="mt-1 text-sm text-gray-500">Search automatically as you type</p>
+              <p className="mt-1 text-sm text-gray-500">Search automatically as you type or use camera to scan labels</p>
             </div>
 
             {/* Search Results */}
@@ -588,6 +626,14 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
           </form>
         </Form>
       </DialogContent>
+
+      {/* Camera Capture Component */}
+      <CameraCapture
+        isOpen={showCamera}
+        onClose={() => setShowCamera(false)}
+        onImageCapture={() => {}} // Not used in this implementation
+        onAnalysisComplete={handleCameraAnalysis}
+      />
     </Dialog>
   );
 }
