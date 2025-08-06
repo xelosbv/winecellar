@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "wouter";
+import { useLastUsedCellar } from "@/hooks/useCellars";
 import Header from "@/components/Header";
 import DashboardStats from "@/components/DashboardStats";
 import CellarVisualization from "@/components/CellarVisualization";
@@ -15,9 +16,17 @@ import { Link } from "wouter";
 
 export default function Dashboard() {
   const { cellarId } = useParams();
+  const { setLastUsedCellarId } = useLastUsedCellar();
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [locationFilter, setLocationFilter] = useState<{column: string, layer: number} | null>(null);
+
+  // Save this cellar as the last used one when accessed
+  useEffect(() => {
+    if (cellarId) {
+      setLastUsedCellarId(cellarId);
+    }
+  }, [cellarId, setLastUsedCellarId]);
 
   const { data: cellar } = useQuery({
     queryKey: [`/api/cellars/${cellarId}`],

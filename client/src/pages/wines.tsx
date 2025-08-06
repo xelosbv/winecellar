@@ -1,12 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "wouter";
+import { useLastUsedCellar } from "@/hooks/useCellars";
 import Header from "@/components/Header";
 import WineTable from "@/components/WineTable";
 import AddWineModal from "@/components/AddWineModal";
 
 export default function Wines() {
   const { cellarId } = useParams();
+  const { setLastUsedCellarId } = useLastUsedCellar();
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
+
+  // Save this cellar as the last used one when accessed
+  useEffect(() => {
+    if (cellarId) {
+      setLastUsedCellarId(cellarId);
+    }
+  }, [cellarId, setLastUsedCellarId]);
 
   if (!cellarId) {
     return <div>Loading...</div>;

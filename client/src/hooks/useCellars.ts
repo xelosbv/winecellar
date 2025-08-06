@@ -8,6 +8,38 @@ export function useCellars() {
   });
 }
 
+export function useLastUsedCellar() {
+  const { data: cellars, isLoading } = useCellars();
+  
+  const getLastUsedCellarId = () => {
+    return localStorage.getItem('lastUsedCellarId');
+  };
+  
+  const setLastUsedCellarId = (cellarId: string) => {
+    localStorage.setItem('lastUsedCellarId', cellarId);
+  };
+  
+  const getDefaultCellarId = () => {
+    if (cellars && cellars.length > 0) {
+      // Return the last used cellar if it exists and is still valid
+      const lastUsedId = getLastUsedCellarId();
+      if (lastUsedId && cellars.some(c => c.id === lastUsedId)) {
+        return lastUsedId;
+      }
+      // Otherwise return the first available cellar
+      return cellars[0].id;
+    }
+    return null;
+  };
+  
+  return {
+    lastUsedCellarId: getLastUsedCellarId(),
+    setLastUsedCellarId,
+    defaultCellarId: getDefaultCellarId(),
+    isLoading,
+  };
+}
+
 export function useCreateCellar() {
   const queryClient = useQueryClient();
   

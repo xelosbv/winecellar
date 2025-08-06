@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "wouter";
+import { useLastUsedCellar } from "@/hooks/useCellars";
 import Header from "@/components/Header";
 import AddWineModal from "@/components/AddWineModal";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,7 +9,15 @@ import { Wine } from "lucide-react";
 
 export default function AddWine() {
   const { cellarId } = useParams();
+  const { setLastUsedCellarId } = useLastUsedCellar();
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(true);
+
+  // Save this cellar as the last used one when accessed
+  useEffect(() => {
+    if (cellarId) {
+      setLastUsedCellarId(cellarId);
+    }
+  }, [cellarId, setLastUsedCellarId]);
 
   if (!cellarId) {
     return <div>Loading...</div>;

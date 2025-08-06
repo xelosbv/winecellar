@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "wouter";
+import { useLastUsedCellar } from "@/hooks/useCellars";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,8 +22,16 @@ type SettingsTab = "countries" | "cellar" | "import";
 
 export default function Settings() {
   const { cellarId } = useParams();
+  const { setLastUsedCellarId } = useLastUsedCellar();
   const [location] = useLocation();
   const [activeTab, setActiveTab] = useState<SettingsTab>("countries");
+
+  // Save this cellar as the last used one when accessed
+  useEffect(() => {
+    if (cellarId) {
+      setLastUsedCellarId(cellarId);
+    }
+  }, [cellarId, setLastUsedCellarId]);
 
   // Handle URL query parameters
   useEffect(() => {
