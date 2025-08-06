@@ -153,7 +153,7 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Buying Price</div>
-                  <div className="font-medium">${parseFloat(wine.buyingPrice).toLocaleString()}</div>
+                  <div className="font-medium">€{parseFloat(wine.buyingPrice).toLocaleString()}</div>
                 </div>
               </div>
             )}
@@ -166,7 +166,7 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
                 </div>
                 <div>
                   <div className="text-sm text-gray-500">Market Value</div>
-                  <div className="font-medium text-green-600">${parseFloat(wine.marketValue).toLocaleString()}</div>
+                  <div className="font-medium text-green-600">€{parseFloat(wine.marketValue).toLocaleString()}</div>
                 </div>
               </div>
             )}
@@ -180,7 +180,7 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
                 <div>
                   <div className="text-sm text-gray-500">Total Buying Value</div>
                   <div className="font-medium text-blue-600">
-                    ${(parseFloat(wine.buyingPrice) * (wine.quantity || 1)).toLocaleString()}
+                    €{(parseFloat(wine.buyingPrice) * (wine.quantity || 1)).toLocaleString()}
                   </div>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
                 <div>
                   <div className="text-sm text-gray-500">Total Market Value</div>
                   <div className="font-medium text-green-600">
-                    ${(parseFloat(wine.marketValue) * (wine.quantity || 1)).toLocaleString()}
+                    €{(parseFloat(wine.marketValue) * (wine.quantity || 1)).toLocaleString()}
                   </div>
                 </div>
               </div>

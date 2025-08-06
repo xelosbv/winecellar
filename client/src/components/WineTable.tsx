@@ -433,7 +433,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                     <div>
                       <div className="text-gray-500 text-xs font-medium mb-1">Buying Price</div>
                       <div className="text-gray-900 font-medium">
-                        {wine.buyingPrice ? `$${parseFloat(wine.buyingPrice).toLocaleString()}` : "N/A"}
+                        {wine.buyingPrice ? `€${parseFloat(wine.buyingPrice).toLocaleString()}` : "N/A"}
                       </div>
                     </div>
                     <div>
@@ -598,7 +598,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       <div className="text-center">
                         <div className="text-gray-500 text-xs font-medium mb-1">Buying Price</div>
                         <div className="text-gray-900 font-medium">
-                          {wine.buyingPrice ? `$${parseFloat(wine.buyingPrice).toLocaleString()}` : "N/A"}
+                          {wine.buyingPrice ? `€${parseFloat(wine.buyingPrice).toLocaleString()}` : "N/A"}
                         </div>
                       </div>
                     </div>

@@ -107,7 +107,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       setSearchResults([]);
       return;
     }
-    
+
     setIsSearching(true);
     try {
       const results = await searchWineDatabase(query);
@@ -137,15 +137,15 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     if (wine.region) form.setValue("region", wine.region);
     if (wine.grapes) form.setValue("grapes", wine.grapes);
     if (wine.buyingPrice) form.setValue("buyingPrice", wine.buyingPrice.toString());
-    
+
     // Handle country mapping - find or create country
     if (wine.country) {
-      const existingCountry = countries.find((c: any) => 
+      const existingCountry = countries.find((c: any) =>
         c.name.toLowerCase() === wine.country!.toLowerCase() ||
         (wine.country === 'US' && c.name.toLowerCase() === 'united states') ||
         (wine.country === 'United States' && c.name.toLowerCase() === 'us')
       );
-      
+
       if (existingCountry) {
         form.setValue("countryId", existingCountry.id);
       } else {
@@ -164,7 +164,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
         }
       }
     }
-    
+
     setSearchResults([]);
     setSearchQuery("");
   };
@@ -177,20 +177,20 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     if (wineData.type) form.setValue("type", wineData.type.toLowerCase());
     if (wineData.region) form.setValue("region", wineData.region);
     if (wineData.grapes) form.setValue("grapes", wineData.grapes);
-    
+
     // Handle country mapping
     if (wineData.country) {
-      const existingCountry = countries.find((c: any) => 
+      const existingCountry = countries.find((c: any) =>
         c.name.toLowerCase() === wineData.country.toLowerCase() ||
         (wineData.country === 'US' && c.name.toLowerCase() === 'united states') ||
         (wineData.country === 'United States' && c.name.toLowerCase() === 'us')
       );
-      
+
       if (existingCountry) {
         form.setValue("countryId", existingCountry.id);
       }
     }
-    
+
     setShowCamera(false);
   };
 
@@ -455,7 +455,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                     <FormLabel>Buying Price</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
                         <Input
                           type="number"
                           step="0.01"
@@ -479,7 +479,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                     <FormLabel>Market Value</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">€</span>
                         <Input
                           type="number"
                           step="0.01"
