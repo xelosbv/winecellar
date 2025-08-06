@@ -291,9 +291,6 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                 <div className="block md:hidden">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center flex-1 min-w-0">
-                      <div className="w-10 h-10 bg-wine/10 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
-                        <Wine className="text-wine w-5 h-5" />
-                      </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-gray-900 truncate">{wine.name}</div>
                         <div className="text-sm text-gray-500 truncate">{wine.producer}</div>
@@ -499,9 +496,6 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
 
                     {/* Wine Info */}
                     <div className="flex items-center min-w-0 flex-1">
-                      <div className="w-10 h-10 bg-wine/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                        <Wine className="text-wine w-5 h-5" />
-                      </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-gray-900 truncate">{wine.name}</div>
                         <div className="text-sm text-gray-500 truncate">{wine.producer}</div>
