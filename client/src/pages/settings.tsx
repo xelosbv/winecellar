@@ -6,17 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Country, InsertCountry, CellarSection, Cellar } from "@shared/schema";
-import { Plus, Edit, Trash2, Layout, Globe, ToggleLeft, ToggleRight, Home, Wine, Settings as SettingsIcon, ArrowLeft } from "lucide-react";
+import { Plus, Edit, Trash2, Layout, Globe, ToggleLeft, ToggleRight, Home, Wine, Settings as SettingsIcon, ArrowLeft, Upload } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import { useLocation, Link } from "wouter";
+import BulkImportTab from "@/components/BulkImportTab";
 
 const insertCountrySchema = z.object({
   name: z.string().min(1, "Country name is required"),
 });
 
-type SettingsTab = "countries" | "cellar";
+type SettingsTab = "countries" | "cellar" | "import";
 
 export default function Settings() {
   const { cellarId } = useParams();
@@ -553,6 +554,17 @@ export default function Settings() {
             <Layout className="w-4 h-4 mr-2" />
             Cellar Designer
           </button>
+          <button
+            onClick={() => setActiveTab("import")}
+            className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+              activeTab === "import"
+                ? "bg-white text-wine shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Bulk Import
+          </button>
         </div>
       </div>
 
@@ -564,6 +576,9 @@ export default function Settings() {
             {renderLayoutConfiguration()}
             {renderCellarDesigner()}
           </>
+        )}
+        {activeTab === "import" && cellarId && (
+          <BulkImportTab cellarId={cellarId} />
         )}
       </div>
     </div>

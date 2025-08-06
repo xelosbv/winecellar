@@ -174,6 +174,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Bulk wine import endpoint
+  app.post("/api/cellars/:cellarId/wines/bulk-import", isAuthenticated, async (req, res) => {
+    try {
+      const { cellarId } = req.params;
+      const wines = req.body;
+      
+      if (!Array.isArray(wines)) {
+        return res.status(400).json({ error: "Request body must be an array of wines" });
+      }
+
+      let successCount = 0;
+      let failedCount = 0;
+      const errors: string[] = [];
+
+      for (let i = 0; i < wines.length; i++) {
+        try {
+          const wineData = { ...wines[i], cellarId };
+          
+          // Convert empty strings to null for numeric fields
+          if (wineData.price === '') wineData.price = null;
+          if (wineData.year === '') wineData.year = null;
+          if (wineData.layer === '') wineData.layer = null;
+          if (wineData.quantity === '') wineData.quantity = 1;
+          if (wineData.toDrinkFrom === '') wineData.toDrinkFrom = null;
+          if (wineData.toDrinkUntil === '') wineData.toDrinkUntil = null;
+          
+          // Handle country lookup
+          if (wineData.country && !wineData.countryId) {
+            const countries = await storage.getCountries();
+            const country = countries.find(c => 
+              c.name.toLowerCase() === wineData.country.toLowerCase()
+            );
+            if (country) {
+              wineData.countryId = country.id;
+            }
+            delete wineData.country;
+          }
+          
+          const validatedData = insertWineSchema.parse(wineData);
+          await storage.createWine(validatedData);
+          successCount++;
+        } catch (error) {
+          failedCount++;
+          if (error instanceof z.ZodError) {
+            errors.push(`Row ${i + 1}: ${error.errors.map(e => e.message).join(', ')}`);
+          } else {
+            errors.push(`Row ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          }
+        }
+      }
+
+      res.json({
+        success: successCount,
+        failed: failedCount,
+        errors: errors
+      });
+    } catch (error) {
+      console.error("Bulk import error:", error);
+      res.status(500).json({ error: "Failed to process bulk import" });
+    }
+  });
+
   app.post("/api/wines", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertWineSchema.parse(req.body);

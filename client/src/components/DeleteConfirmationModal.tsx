@@ -31,12 +31,12 @@ export default function DeleteConfirmationModal({
           </DialogTitle>
           <DialogDescription className="text-gray-600">
             {message}
-            {itemName && (
-              <div className="mt-2 p-2 bg-gray-50 rounded border">
-                <span className="font-medium">{itemName}</span>
-              </div>
-            )}
           </DialogDescription>
+          {itemName && (
+            <div className="mt-2 p-2 bg-gray-50 rounded border">
+              <span className="font-medium">{itemName}</span>
+            </div>
+          )}
         </DialogHeader>
 
         <div className="flex justify-end gap-3 mt-6">
