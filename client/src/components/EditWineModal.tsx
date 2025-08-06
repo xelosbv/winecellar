@@ -13,6 +13,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
+import LocationGridSelector from "./LocationGridSelector";
 
 interface EditWineModalProps {
   wine: WineType;
@@ -231,56 +232,23 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                 )}
               />
 
-              {/* Column */}
-              <FormField
-                control={form.control}
-                name="column"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Column *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="A">Column A</SelectItem>
-                        <SelectItem value="B">Column B</SelectItem>
-                        <SelectItem value="C">Column C</SelectItem>
-                        <SelectItem value="D">Column D</SelectItem>
-                        <SelectItem value="E">Column E</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            </div>
 
-              {/* Layer */}
-              <FormField
-                control={form.control}
-                name="layer"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Layer *</FormLabel>
-                    <Select onValueChange={(value) => field.onChange(parseInt(value))} value={field.value?.toString()}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select layer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="1">Layer 1 (Top)</SelectItem>
-                        <SelectItem value="2">Layer 2</SelectItem>
-                        <SelectItem value="3">Layer 3</SelectItem>
-                        <SelectItem value="4">Layer 4 (Bottom)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            {/* Location Selection */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Wine Location</h3>
+              <LocationGridSelector
+                cellarId={wine.cellarId}
+                selectedColumn={form.watch("column")}
+                selectedLayer={form.watch("layer")}
+                onLocationSelect={(column, layer) => {
+                  form.setValue("column", column);
+                  form.setValue("layer", layer);
+                }}
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               {/* Quantity */}
               <FormField
