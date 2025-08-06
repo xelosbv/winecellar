@@ -61,6 +61,8 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
     defaultValues: {
       toCellarId: "",
       quantity: 1,
+      toColumn: "",
+      toLayer: "",
     },
   });
 
@@ -70,9 +72,28 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
       return await response.json();
     },
     onSuccess: () => {
+      const fromCellarId = wine?.cellarId;
+      const toCellarId = form.getValues("toCellarId");
+      
+      // Invalidate all relevant queries for both cellars
       queryClient.invalidateQueries({ queryKey: ["/api/cellars"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/cellars", wine?.cellarId, "wines"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/cellars", form.getValues("toCellarId"), "wines"] });
+      
+      // Source cellar updates
+      if (fromCellarId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${fromCellarId}/wines`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${fromCellarId}/stats`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${fromCellarId}/sections`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${fromCellarId}`] });
+      }
+      
+      // Destination cellar updates
+      if (toCellarId) {
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${toCellarId}/wines`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${toCellarId}/stats`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${toCellarId}/sections`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/cellars/${toCellarId}`] });
+      }
+      
       toast({
         title: "Success",
         description: "Wine transferred successfully",
