@@ -6,6 +6,7 @@ import { Wine, Plus, X } from "lucide-react";
 import { CellarSection, Wine as WineType } from "@shared/schema";
 
 interface LocationGridSelectorProps {
+  cellarId: string;
   selectedColumn?: string;
   selectedLayer?: number;
   onLocationSelect: (column: string, layer: number) => void;
@@ -13,17 +14,18 @@ interface LocationGridSelectorProps {
 }
 
 export default function LocationGridSelector({ 
+  cellarId,
   selectedColumn, 
   selectedLayer, 
   onLocationSelect,
   className = ""
 }: LocationGridSelectorProps) {
   const { data: cellarSections = [] } = useQuery<CellarSection[]>({
-    queryKey: ["/api/cellar/sections"],
+    queryKey: [`/api/cellars/${cellarId}/sections`],
   });
 
   const { data: wines = [] } = useQuery<WineType[]>({
-    queryKey: ["/api/wines"],
+    queryKey: [`/api/cellars/${cellarId}/wines`],
   });
 
   // Create a map of location occupancy

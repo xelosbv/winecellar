@@ -58,8 +58,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
 
   const addWineMutation = useMutation({
     mutationFn: async (data: InsertWine) => {
-      const response = await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
-      return response.json();
+      return await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/wines`] });
@@ -337,6 +336,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                         <FormLabel>Wine Location *</FormLabel>
                         <FormControl>
                           <LocationGridSelector
+                            cellarId={cellarId}
                             selectedColumn={columnField.value}
                             selectedLayer={layerField.value}
                             onLocationSelect={(column, layer) => {

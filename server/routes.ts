@@ -121,6 +121,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/cellars/:cellarId/wines", isAuthenticated, async (req, res) => {
+    try {
+      const { cellarId } = req.params;
+      const validatedData = insertWineSchema.parse({ ...req.body, cellarId });
+      const wine = await storage.createWine(validatedData);
+      res.status(201).json(wine);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid wine data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to create wine" });
+    }
+  });
+
   app.post("/api/wines", isAuthenticated, async (req, res) => {
     try {
       const validatedData = insertWineSchema.parse(req.body);
