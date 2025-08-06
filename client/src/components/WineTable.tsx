@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast";
 import WineDetailsModal from "./WineDetailsModal";
 import EditWineModal from "./EditWineModal";
 import { TransferWineModal } from "./TransferWineModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
 
 const wineTypeColors = {
   red: "bg-red-100 text-red-800",
@@ -60,6 +61,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
   const [selectedWineForView, setSelectedWineForView] = useState<WineType | null>(null);
   const [selectedWineForEdit, setSelectedWineForEdit] = useState<WineType | null>(null);
   const [selectedWineForTransfer, setSelectedWineForTransfer] = useState<WineType | null>(null);
+  const [selectedWineForDelete, setSelectedWineForDelete] = useState<WineType | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -111,9 +113,14 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
   const uniqueYears = Array.from(new Set(wines.map(w => w.year).filter((year): year is number => year !== null && year !== undefined))).sort((a, b) => b - a);
   const uniqueCountries = Array.from(new Set(wines.map(w => (w as any).countryName).filter(Boolean))).sort();
 
-  const handleDeleteWine = (id: string) => {
-    if (confirm("Are you sure you want to delete this wine?")) {
-      deleteWineMutation.mutate(id);
+  const handleDeleteWine = (wine: WineType) => {
+    setSelectedWineForDelete(wine);
+  };
+
+  const confirmDeleteWine = () => {
+    if (selectedWineForDelete) {
+      deleteWineMutation.mutate(selectedWineForDelete.id);
+      setSelectedWineForDelete(null);
     }
   };
 
@@ -371,7 +378,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                               variant="ghost" 
                               size="sm" 
                               className="text-red-400 hover:text-red-600 p-1.5"
-                              onClick={() => handleDeleteWine(wine.id)}
+                              onClick={() => handleDeleteWine(wine)}
                               disabled={deleteWineMutation.isPending}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -502,7 +509,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                               variant="ghost" 
                               size="sm" 
                               className="text-red-400 hover:text-red-600 p-1.5"
-                              onClick={() => handleDeleteWine(wine.id)}
+                              onClick={() => handleDeleteWine(wine)}
                               disabled={deleteWineMutation.isPending}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -632,6 +639,17 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
         wine={selectedWineForTransfer} 
         isOpen={!!selectedWineForTransfer} 
         onClose={() => setSelectedWineForTransfer(null)} 
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={!!selectedWineForDelete}
+        onClose={() => setSelectedWineForDelete(null)}
+        onConfirm={confirmDeleteWine}
+        title="Delete Wine"
+        message="Are you sure you want to delete this wine from your collection? This action cannot be undone."
+        itemName={selectedWineForDelete ? `${selectedWineForDelete.name} (${selectedWineForDelete.producer})` : undefined}
+        isDeleting={deleteWineMutation.isPending}
       />
     </Card>
   );
