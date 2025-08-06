@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { insertWineSchema, type InsertWine, type WineSearchResult } from "@shared/schema";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -202,6 +202,9 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-gray-900">Add New Wine</DialogTitle>
+          <DialogDescription>
+            Add a new wine to your cellar collection. Search the database for automatic details or enter information manually.
+          </DialogDescription>
         </DialogHeader>
 
         <Form {...form}>

@@ -10,6 +10,7 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **August 6, 2025**: Fixed critical wine creation bug where empty price fields caused database errors. Issue was empty strings being sent instead of null values for numeric fields. Updated AddWineModal to properly transform empty strings to null for price, year, drinking windows, and countryId fields. Wine creation now works reliably with optional price information.
 - **August 6, 2025**: Enhanced wine data model with three new fields: Volume (37.5cl, 75cl, 1.5L, 3L dropdown), To Drink From (year), and To Drink Until (year). Updated database schema, forms (Add/Edit), and wine table display to include new wine tracking capabilities. Improved wine table UI with icon-only buttons, tooltips, and standardized button order (view, edit, transfer, delete) for cleaner interface and better mobile experience.
 - **August 6, 2025**: Fixed wine edit cache invalidation issue where grid visualization didn't refresh automatically after editing wines. Added comprehensive cache invalidation to all wine operations (EditWineModal, AddWineModal, WineTable delete, TransferWineModal) to ensure sections, wines, and stats queries are invalidated for immediate UI updates.
 - **August 6, 2025**: Replaced all hardcoded layer counts (4) with dynamic cellar layout configuration throughout application. Updated LocationGridSelector and CellarVisualization to use actual cellar rowCount. Grid visualization now automatically adapts to user-defined layout settings with proper TypeScript typing.
