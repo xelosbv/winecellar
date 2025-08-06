@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { Wine as WineType, CellarSection } from "@shared/schema";
+import { Wine as WineType, CellarSection, Cellar } from "@shared/schema";
 import { Edit, Plus } from "lucide-react";
 import { Link } from "wouter";
 import AddWineModal from "./AddWineModal";
@@ -21,6 +21,10 @@ interface CellarVisualizationProps {
 export default function CellarVisualization({ cellarId, onLocationClick }: CellarVisualizationProps) {
   const [isAddWineModalOpen, setIsAddWineModalOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<{column: string, layer: number} | null>(null);
+
+  const { data: cellar } = useQuery<Cellar>({
+    queryKey: [`/api/cellars/${cellarId}`],
+  });
 
   const { data: wines = [] } = useQuery<WineType[]>({
     queryKey: [`/api/cellars/${cellarId}/wines`],
@@ -51,6 +55,10 @@ export default function CellarVisualization({ cellarId, onLocationClick }: Cella
   const enabledColumns = Object.keys(groupedSections)
     .filter(column => groupedSections[column].some(section => section.isEnabled === "true"))
     .sort();
+
+  // Get dynamic row count from cellar configuration
+  const rowCount = cellar?.rowCount || 4;
+  const layers = Array.from({ length: rowCount }, (_, i) => i + 1);
 
   const getLocationCount = (column: string, layer: number): number => {
     return locationMap.get(`${column}-${layer}`) || 0;
@@ -115,7 +123,7 @@ export default function CellarVisualization({ cellarId, onLocationClick }: Cella
           <div className="flex gap-4 mb-4">
             {/* Layer numbers on the left */}
             <div className="flex flex-col justify-start pt-6">
-              {[1, 2, 3, 4].map((layer) => (
+              {layers.map((layer) => (
                 <div key={layer} className="h-8 flex items-center justify-center text-xs font-medium text-gray-500 mb-1">
                   {layer}
                 </div>
@@ -141,7 +149,7 @@ export default function CellarVisualization({ cellarId, onLocationClick }: Cella
           
           <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
             <span>Layer 1 (Top)</span>
-            <span>Layer 4 (Bottom)</span>
+            <span>Layer {rowCount} (Bottom)</span>
           </div>
           
           <div className="bg-gray-50 p-4 rounded-lg">

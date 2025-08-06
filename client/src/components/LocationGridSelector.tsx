@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Wine, Plus, X } from "lucide-react";
-import { CellarSection, Wine as WineType } from "@shared/schema";
+import { CellarSection, Wine as WineType, Cellar } from "@shared/schema";
 
 interface LocationGridSelectorProps {
   cellarId: string;
@@ -20,6 +20,10 @@ export default function LocationGridSelector({
   onLocationSelect,
   className = ""
 }: LocationGridSelectorProps) {
+  const { data: cellar } = useQuery<Cellar>({
+    queryKey: [`/api/cellars/${cellarId}`],
+  });
+
   const { data: cellarSections = [] } = useQuery<CellarSection[]>({
     queryKey: [`/api/cellars/${cellarId}/sections`],
   });
@@ -53,6 +57,10 @@ export default function LocationGridSelector({
   const enabledColumns = Object.keys(groupedSections)
     .filter(column => groupedSections[column].some(section => section.isEnabled === "true"))
     .sort();
+
+  // Get dynamic row count from cellar configuration
+  const rowCount = cellar?.rowCount || 4;
+  const layers = Array.from({ length: rowCount }, (_, i) => i + 1);
 
   const LocationCell = ({ section }: { section: CellarSection }) => {
     const count = getLocationCount(section.column, section.layer);
@@ -139,15 +147,15 @@ export default function LocationGridSelector({
           <div className="space-y-3">
             {/* Column labels on top */}
             <div className="flex justify-between items-center text-xs text-gray-500 ml-8">
-              <span>Column A</span>
-              <span>Column E</span>
+              <span>Column {enabledColumns[0]}</span>
+              {enabledColumns.length > 1 && <span>Column {enabledColumns[enabledColumns.length - 1]}</span>}
             </div>
             
             {/* Grid layout: layers vertically, columns horizontally */}
             <div className="flex gap-2">
               {/* Layer labels on the left */}
               <div className="flex flex-col gap-1 pt-6">
-                {[1, 2, 3, 4].map(layer => (
+                {layers.map(layer => (
                   <div key={layer} className="h-12 w-6 flex items-center justify-center text-xs text-gray-500">
                     {layer}
                   </div>
@@ -166,7 +174,7 @@ export default function LocationGridSelector({
                 </div>
                 
                 {/* Grid rows (one per layer) */}
-                {[1, 2, 3, 4].map(layer => (
+                {layers.map(layer => (
                   <div key={layer} className="flex gap-1">
                     {enabledColumns.map(column => {
                       const section = groupedSections[column]?.find(s => s.layer === layer);
