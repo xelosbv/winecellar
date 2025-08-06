@@ -302,13 +302,13 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                     
                     {/* Mobile Actions */}
                     <TooltipProvider>
-                      <div className="flex gap-1 flex-shrink-0">
+                      <div className="flex gap-0.5 flex-shrink-0">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-wine hover:text-wine-light"
+                              className="text-wine hover:text-wine-light p-1.5"
                               onClick={() => setSelectedWineForView(wine)}
                             >
                               <Eye className="w-4 h-4" />
@@ -322,7 +322,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-gray-400 hover:text-gray-600"
+                              className="text-gray-400 hover:text-gray-600 p-1.5"
                               onClick={() => setSelectedWineForEdit(wine)}
                             >
                               <Edit className="w-4 h-4" />
@@ -336,7 +336,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-blue-400 hover:text-blue-600"
+                              className="text-blue-400 hover:text-blue-600 p-1.5"
                               onClick={() => setSelectedWineForTransfer(wine)}
                             >
                               <ArrowRightLeft className="w-4 h-4" />
@@ -350,7 +350,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-red-400 hover:text-red-600"
+                              className="text-red-400 hover:text-red-600 p-1.5"
                               onClick={() => handleDeleteWine(wine.id)}
                               disabled={deleteWineMutation.isPending}
                             >
@@ -367,11 +367,25 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div>
                       <div className="text-gray-500 text-xs font-medium mb-1">Type</div>
-                      <Badge 
-                        className={`${wineTypeColors[wine.type as keyof typeof wineTypeColors] || "bg-gray-100 text-gray-800"} text-xs`}
-                      >
-                        {wine.type?.charAt(0).toUpperCase() + wine.type?.slice(1)}
-                      </Badge>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="flex justify-center">
+                              <Wine className={`w-5 h-5 ${
+                                wine.type === 'red' ? 'text-red-600' :
+                                wine.type === 'white' ? 'text-yellow-600' :
+                                wine.type === 'rosé' ? 'text-pink-600' :
+                                wine.type === 'sparkling' ? 'text-blue-600' :
+                                wine.type === 'dessert' ? 'text-amber-600' :
+                                'text-wine'
+                              }`} />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            {wine.type?.charAt(0).toUpperCase() + wine.type?.slice(1)}
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                     <div>
                       <div className="text-gray-500 text-xs font-medium mb-1">Year</div>
@@ -423,13 +437,13 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                   <div className="flex items-center gap-6">
                     {/* Actions */}
                     <TooltipProvider>
-                      <div className="flex gap-2 flex-shrink-0">
+                      <div className="flex gap-0.5 flex-shrink-0">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-wine hover:text-wine-light"
+                              className="text-wine hover:text-wine-light p-1.5"
                               onClick={() => setSelectedWineForView(wine)}
                             >
                               <Eye className="w-4 h-4" />
@@ -443,7 +457,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-gray-400 hover:text-gray-600"
+                              className="text-gray-400 hover:text-gray-600 p-1.5"
                               onClick={() => setSelectedWineForEdit(wine)}
                             >
                               <Edit className="w-4 h-4" />
@@ -457,7 +471,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-blue-400 hover:text-blue-600"
+                              className="text-blue-400 hover:text-blue-600 p-1.5"
                               onClick={() => setSelectedWineForTransfer(wine)}
                             >
                               <ArrowRightLeft className="w-4 h-4" />
@@ -471,7 +485,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-red-400 hover:text-red-600"
+                              className="text-red-400 hover:text-red-600 p-1.5"
                               onClick={() => handleDeleteWine(wine.id)}
                               disabled={deleteWineMutation.isPending}
                             >
@@ -498,11 +512,25 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                     <div className="flex items-center gap-4 text-sm flex-shrink-0">
                       <div className="text-center">
                         <div className="text-gray-500 text-xs font-medium mb-1">Type</div>
-                        <Badge 
-                          className={`${wineTypeColors[wine.type as keyof typeof wineTypeColors] || "bg-gray-100 text-gray-800"} text-xs`}
-                        >
-                          {wine.type?.charAt(0).toUpperCase() + wine.type?.slice(1)}
-                        </Badge>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex justify-center">
+                                <Wine className={`w-5 h-5 ${
+                                  wine.type === 'red' ? 'text-red-600' :
+                                  wine.type === 'white' ? 'text-yellow-600' :
+                                  wine.type === 'rosé' ? 'text-pink-600' :
+                                  wine.type === 'sparkling' ? 'text-blue-600' :
+                                  wine.type === 'dessert' ? 'text-amber-600' :
+                                  'text-wine'
+                                }`} />
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              {wine.type?.charAt(0).toUpperCase() + wine.type?.slice(1)}
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                       
                       <div className="text-center">
