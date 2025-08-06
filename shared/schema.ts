@@ -58,7 +58,8 @@ export const wines = pgTable("wines", {
   countryId: varchar("country_id").references(() => countries.id),
   column: text("column").notNull(), // A-F
   layer: integer("layer").notNull(), // 1-4
-  price: decimal("price", { precision: 10, scale: 2 }),
+  buyingPrice: decimal("buying_price", { precision: 10, scale: 2 }),
+  marketValue: decimal("market_value", { precision: 10, scale: 2 }),
   quantity: integer("quantity").notNull().default(1), // Number of bottles
   volume: text("volume"), // 37.5cl, 75cl, 1.5l, 3l
   toDrinkFrom: integer("to_drink_from"), // Year

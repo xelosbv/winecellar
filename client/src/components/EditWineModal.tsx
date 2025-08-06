@@ -25,7 +25,8 @@ interface EditWineModalProps {
 const editWineSchema = insertWineSchema.partial().extend({
   id: z.string(),
   year: z.string().optional(),
-  price: z.string().optional(),
+  buyingPrice: z.string().optional(),
+  marketValue: z.string().optional(),
   toDrinkFrom: z.string().optional(),
   toDrinkUntil: z.string().optional(),
 });
@@ -51,7 +52,8 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       grapes: wine.grapes || "",
       column: wine.column,
       layer: wine.layer,
-      price: wine.price || "",
+      buyingPrice: wine.buyingPrice || "",
+      marketValue: wine.marketValue || "",
       volume: wine.volume || "",
       toDrinkFrom: wine.toDrinkFrom?.toString() || "",
       toDrinkUntil: wine.toDrinkUntil?.toString() || "",
@@ -73,7 +75,8 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       grapes: wine.grapes || "",
       column: wine.column,
       layer: wine.layer,
-      price: wine.price || "",
+      buyingPrice: wine.buyingPrice || "",
+      marketValue: wine.marketValue || "",
       volume: wine.volume || "",
       toDrinkFrom: wine.toDrinkFrom?.toString() || "",
       toDrinkUntil: wine.toDrinkUntil?.toString() || "",
@@ -90,7 +93,8 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       const formattedData = {
         ...updateData,
         year: updateData.year ? parseInt(updateData.year) : null,
-        price: updateData.price || null,
+        buyingPrice: updateData.buyingPrice || null,
+        marketValue: updateData.marketValue || null,
         toDrinkFrom: updateData.toDrinkFrom ? parseInt(updateData.toDrinkFrom) : null,
         toDrinkUntil: updateData.toDrinkUntil ? parseInt(updateData.toDrinkUntil) : null,
       };
@@ -307,20 +311,43 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                 )}
               />
 
-              {/* Price */}
+              {/* Buying Price */}
               <FormField
                 control={form.control}
-                name="price"
+                name="buyingPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price per bottle ($)</FormLabel>
+                    <FormLabel>Buying Price ($)</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
                         step="0.01" 
-                        placeholder="0.00" 
+                        placeholder="Price paid"
                         min="0" 
-                        {...field} 
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Market Value */}
+              <FormField
+                control={form.control}
+                name="marketValue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Market Value ($)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        placeholder="Current value"
+                        min="0" 
+                        {...field}
+                        value={field.value || ""}
                       />
                     </FormControl>
                     <FormMessage />

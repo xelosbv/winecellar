@@ -54,7 +54,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       countryId: "",
       column: prefilledLocation?.column || "",
       layer: prefilledLocation?.layer || undefined,
-      price: "",
+      buyingPrice: "",
+      marketValue: "",
       quantity: 1,
       volume: "",
       toDrinkFrom: undefined,
@@ -68,7 +69,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       // Transform empty strings to null for numeric fields
       const formattedData = {
         ...data,
-        price: data.price || null,
+        buyingPrice: data.buyingPrice || null,
+        marketValue: data.marketValue || null,
         year: data.year || null,
         toDrinkFrom: data.toDrinkFrom || null,
         toDrinkUntil: data.toDrinkUntil || null,
@@ -134,7 +136,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     if (wine.type) form.setValue("type", wine.type.toLowerCase());
     if (wine.region) form.setValue("region", wine.region);
     if (wine.grapes) form.setValue("grapes", wine.grapes);
-    if (wine.price) form.setValue("price", wine.price.toString());
+    if (wine.buyingPrice) form.setValue("buyingPrice", wine.buyingPrice.toString());
     
     // Handle country mapping - find or create country
     if (wine.country) {
@@ -210,7 +212,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
         countryId: "",
         column: "",
         layer: undefined,
-        price: "",
+        buyingPrice: "",
+        marketValue: "",
         quantity: 1,
         volume: "",
         toDrinkFrom: undefined,
@@ -446,10 +449,10 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
 
               <FormField
                 control={form.control}
-                name="price"
+                name="buyingPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Purchase Price</FormLabel>
+                    <FormLabel>Buying Price</FormLabel>
                     <FormControl>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
@@ -457,6 +460,31 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                           type="number"
                           step="0.01"
                           className="pl-7"
+                          placeholder="Price paid"
+                          {...field}
+                          value={field.value || ""}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="marketValue"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Market Value</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          className="pl-7"
+                          placeholder="Current value"
                           {...field}
                           value={field.value || ""}
                         />

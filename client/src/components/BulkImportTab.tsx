@@ -144,9 +144,13 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
       'region': 'region',
       'appellation': 'region',
       'country': 'country',
-      'price': 'price',
-      'cost': 'price',
-      'value': 'price',
+      'price': 'buyingPrice',
+      'cost': 'buyingPrice',
+      'buying price': 'buyingPrice',
+      'purchase price': 'buyingPrice',
+      'value': 'marketValue',
+      'market value': 'marketValue',
+      'current value': 'marketValue',
       'column': 'column',
       'location column': 'column',
       'layer': 'layer',
@@ -207,7 +211,7 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
             if (normalizedHeader === 'quantity' && value) {
               value = parseInt(value.toString()) || 1;
             }
-            if (normalizedHeader === 'price' && value) {
+            if ((normalizedHeader === 'buyingPrice' || normalizedHeader === 'marketValue') && value) {
               value = parseFloat(value.toString());
             }
             
@@ -235,17 +239,17 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
     const templateData = [
       [
         'Name', 'Producer', 'Year', 'Type', 'Region', 'Grapes', 'Country', 
-        'Column', 'Layer', 'Quantity', 'Volume', 'Price', 'Notes',
+        'Column', 'Layer', 'Quantity', 'Volume', 'Buying Price', 'Market Value', 'Notes',
         'To Drink From', 'To Drink Until'
       ],
       [
         'Chateau Margaux', 'Chateau Margaux', 2015, 'red', 'Margaux', 'Cabernet Sauvignon, Merlot', 'France',
-        'A', 1, 1, '75cl', 850, 'Excellent vintage from premier cru estate',
+        'A', 1, 1, '75cl', 850, 1200, 'Excellent vintage from premier cru estate',
         2025, 2040
       ],
       [
-        'Dom Perignon', 'Moet & Chandon', 2012, 'champagne', 'Champagne', 'France',
-        'B', 2, 2, '75cl', 180, 'Prestige cuvee from renowned house',
+        'Dom Perignon', 'Moet & Chandon', 2012, 'champagne', 'Champagne', 'Chardonnay, Pinot Noir', 'France',
+        'B', 2, 2, '75cl', 180, 220, 'Prestige cuvee from renowned house',
         2022, 2030
       ]
     ];

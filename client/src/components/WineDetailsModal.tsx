@@ -145,29 +145,57 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
               </div>
             </div>
 
-            {/* Price */}
-            {wine.price && (
+            {/* Buying Price */}
+            {wine.buyingPrice && (
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="w-4 h-4 text-gray-600" />
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-blue-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Price per bottle</div>
-                  <div className="font-medium">${parseFloat(wine.price).toLocaleString()}</div>
+                  <div className="text-sm text-gray-500">Buying Price</div>
+                  <div className="font-medium">${parseFloat(wine.buyingPrice).toLocaleString()}</div>
                 </div>
               </div>
             )}
 
-            {/* Total Value */}
-            {wine.price && (
+            {/* Market Value */}
+            {wine.marketValue && (
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                   <DollarSign className="w-4 h-4 text-green-600" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-500">Total Value</div>
+                  <div className="text-sm text-gray-500">Market Value</div>
+                  <div className="font-medium text-green-600">${parseFloat(wine.marketValue).toLocaleString()}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Total Buying Value */}
+            {wine.buyingPrice && (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-blue-500" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Total Buying Value</div>
+                  <div className="font-medium text-blue-600">
+                    ${(parseFloat(wine.buyingPrice) * (wine.quantity || 1)).toLocaleString()}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Total Market Value */}
+            {wine.marketValue && (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                  <DollarSign className="w-4 h-4 text-green-500" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Total Market Value</div>
                   <div className="font-medium text-green-600">
-                    ${(parseFloat(wine.price) * (wine.quantity || 1)).toLocaleString()}
+                    ${(parseFloat(wine.marketValue) * (wine.quantity || 1)).toLocaleString()}
                   </div>
                 </div>
               </div>
