@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Wine as WineType } from "@shared/schema";
 import { Wine, Eye, Edit, Trash2, Filter, X, Search, ArrowRightLeft } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -300,54 +301,66 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                     </div>
                     
                     {/* Mobile Actions */}
-                    <div className="flex gap-1 flex-shrink-0">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-wine hover:text-wine-light"
-                        onClick={() => setSelectedWineForView(wine)}
-                        title="View details"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-blue-400 hover:text-blue-600"
-                        onClick={() => setSelectedWineForTransfer(wine)}
-                        title="Transfer wine"
-                      >
-                        <ArrowRightLeft className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-blue-400 hover:text-blue-600"
-                        onClick={() => setSelectedWineForTransfer(wine)}
-                        title="Transfer wine"
-                      >
-                        <ArrowRightLeft className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-gray-400 hover:text-gray-600"
-                        onClick={() => setSelectedWineForEdit(wine)}
-                        title="Edit wine"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-red-400 hover:text-red-600"
-                        onClick={() => handleDeleteWine(wine.id)}
-                        disabled={deleteWineMutation.isPending}
-                        title="Delete wine"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <TooltipProvider>
+                      <div className="flex gap-1 flex-shrink-0">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-wine hover:text-wine-light"
+                              onClick={() => setSelectedWineForView(wine)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>View details</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-gray-400 hover:text-gray-600"
+                              onClick={() => setSelectedWineForEdit(wine)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit wine</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-blue-400 hover:text-blue-600"
+                              onClick={() => setSelectedWineForTransfer(wine)}
+                            >
+                              <ArrowRightLeft className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Transfer wine</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-400 hover:text-red-600"
+                              onClick={() => handleDeleteWine(wine.id)}
+                              disabled={deleteWineMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete wine</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
                   </div>
                   
                   {/* Mobile Details */}
@@ -408,50 +421,67 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                 {/* Desktop Layout */}
                 <div className="hidden md:block">
                   <div className="flex items-center gap-6">
-                    {/* Actions - moved to beginning */}
-                    <div className="flex gap-2 flex-shrink-0">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-wine hover:text-wine-light"
-                        onClick={() => setSelectedWineForView(wine)}
-                        title="View details"
-                      >
-                        <Eye className="w-4 h-4" />
-                        <span className="ml-2 hidden lg:inline">View</span>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-blue-400 hover:text-blue-600"
-                        onClick={() => setSelectedWineForTransfer(wine)}
-                        title="Transfer wine"
-                      >
-                        <ArrowRightLeft className="w-4 h-4" />
-                        <span className="ml-2 hidden lg:inline">Transfer</span>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-gray-400 hover:text-gray-600"
-                        onClick={() => setSelectedWineForEdit(wine)}
-                        title="Edit wine"
-                      >
-                        <Edit className="w-4 h-4" />
-                        <span className="ml-2 hidden lg:inline">Edit</span>
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-red-400 hover:text-red-600"
-                        onClick={() => handleDeleteWine(wine.id)}
-                        disabled={deleteWineMutation.isPending}
-                        title="Delete wine"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        <span className="ml-2 hidden lg:inline">Delete</span>
-                      </Button>
-                    </div>
+                    {/* Actions */}
+                    <TooltipProvider>
+                      <div className="flex gap-2 flex-shrink-0">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-wine hover:text-wine-light"
+                              onClick={() => setSelectedWineForView(wine)}
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>View details</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-gray-400 hover:text-gray-600"
+                              onClick={() => setSelectedWineForEdit(wine)}
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Edit wine</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-blue-400 hover:text-blue-600"
+                              onClick={() => setSelectedWineForTransfer(wine)}
+                            >
+                              <ArrowRightLeft className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Transfer wine</TooltipContent>
+                        </Tooltip>
+                        
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-red-400 hover:text-red-600"
+                              onClick={() => handleDeleteWine(wine.id)}
+                              disabled={deleteWineMutation.isPending}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete wine</TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
 
                     {/* Wine Info */}
                     <div className="flex items-center min-w-0 flex-1">
