@@ -10,9 +10,9 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+- **August 6, 2025**: Fixed critical add wine functionality issue. Problem was missing cellarId field validation in form submission. Resolved by adding cellarId to form default values and including hidden input field. Wine addition now works properly with cellar-specific API endpoints and proper form validation.
+- **August 6, 2025**: Completed custom cellar layout configuration feature allowing users to define any number of columns (1-26, labeled A-Z) and rows. Updated database schema with columnCount and rowCount fields. Layout changes automatically reinitialize cellar sections. Settings page includes layout configuration UI with warnings about section resets.
 - **February 5, 2025**: Successfully completed full migration to multi-user multi-cellar architecture with Replit authentication. All components now support cellar-specific operations with proper user isolation. Authentication flow implemented with session management, user context, and protected routes. Create cellar functionality fully operational with form validation and database integration.
-- **January 28, 2025**: Migrated from in-memory storage to PostgreSQL database to solve data persistence issues during server restarts. Updated storage layer to use Drizzle ORM with proper database operations.
-- **January 28, 2025**: Implemented complete cellar designer system with customizable layout (A-E columns, 4 layers). Added settings navigation menu with Countries and Cellar Designer tabs. Users can now enable/disable individual cellar sections and dashboard adapts to show only enabled sections. Default setup creates A-E columns with 4 layers where 1=top and 4=bottom.
 
 ## System Architecture
 

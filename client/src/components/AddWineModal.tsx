@@ -59,7 +59,6 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
 
   const addWineMutation = useMutation({
     mutationFn: async (data: InsertWine) => {
-      console.log("Adding wine with data:", data);
       const response = await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
       return await response.json();
     },
@@ -152,8 +151,6 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
   };
 
   const onSubmit = (data: InsertWine) => {
-    console.log("Form submitted with data:", data);
-    console.log("Form errors:", form.formState.errors);
     addWineMutation.mutate(data);
   };
 
@@ -498,11 +495,6 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                 type="submit"
                 className="bg-wine text-white hover:bg-wine-light"
                 disabled={addWineMutation.isPending}
-                onClick={(e) => {
-                  console.log("Add Wine button clicked");
-                  console.log("Form valid:", form.formState.isValid);
-                  console.log("Form errors:", form.formState.errors);
-                }}
               >
                 {addWineMutation.isPending ? "Adding..." : "Add Wine"}
               </Button>
