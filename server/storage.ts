@@ -220,7 +220,8 @@ export class DatabaseStorage implements IStorage {
         countryId: wine.countryId,
         column: targetColumn,
         layer: targetRow,
-        price: wine.price,
+        buyingPrice: wine.buyingPrice,
+        marketValue: wine.marketValue,
         quantity: transfer.quantity,
         notes: wine.notes,
       });
@@ -495,13 +496,13 @@ export class DatabaseStorage implements IStorage {
     const [result] = await db
       .select({ count: sql<number>`count(*)` })
       .from(wines)
-      .where(and(eq(wines.cellarId, cellarId), sql`${wines.price} > 100`));
+      .where(and(eq(wines.cellarId, cellarId), sql`${wines.buyingPrice} > 100`));
     return result.count;
   }
 
   async getCellarTotalValue(cellarId: string): Promise<number> {
     const [result] = await db
-      .select({ total: sql<number>`COALESCE(SUM(${wines.price} * ${wines.quantity}), 0)` })
+      .select({ total: sql<number>`COALESCE(SUM(${wines.buyingPrice} * ${wines.quantity}), 0)` })
       .from(wines)
       .where(eq(wines.cellarId, cellarId));
     return result.total;

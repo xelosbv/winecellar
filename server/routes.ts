@@ -193,7 +193,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const wineData = { ...wines[i], cellarId };
           
           // Convert empty strings to null for numeric fields
-          if (wineData.price === '') wineData.price = null;
+          if (wineData.buyingPrice === '') wineData.buyingPrice = null;
+          if (wineData.marketValue === '') wineData.marketValue = null;
           if (wineData.year === '') wineData.year = null;
           if (wineData.layer === '') wineData.layer = null;
           if (wineData.quantity === '') wineData.quantity = 1;
@@ -202,7 +203,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Handle country lookup
           if (wineData.country && !wineData.countryId) {
-            const countries = await storage.getCountries();
+            const countries = await storage.getAllCountries();
             const country = countries.find(c => 
               c.name.toLowerCase() === wineData.country.toLowerCase()
             );
@@ -492,7 +493,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: mapWineVarietyToType(wine.variety),
           region: wine.region_1 || wine.province,
           country: wine.country,
-          price: wine.price,
+          buyingPrice: wine.price,
+          marketValue: null,
           description: wine.description,
           points: wine.points,
           variety: wine.variety
