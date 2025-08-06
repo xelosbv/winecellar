@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Country, InsertCountry, CellarSection } from "@shared/schema";
+import { Country, InsertCountry, CellarSection, Cellar } from "@shared/schema";
 import { Plus, Edit, Trash2, Layout, Globe, ToggleLeft, ToggleRight, Home, Wine, Settings as SettingsIcon, ArrowLeft } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,8 @@ export default function Settings() {
   const [newCountryName, setNewCountryName] = useState("");
   const [editingCountry, setEditingCountry] = useState<Country | null>(null);
   const [editName, setEditName] = useState("");
+  const [columnCount, setColumnCount] = useState(5);
+  const [rowCount, setRowCount] = useState(4);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -41,10 +43,23 @@ export default function Settings() {
     queryKey: ["/api/countries"],
   });
 
+  const { data: cellar } = useQuery<Cellar>({
+    queryKey: [`/api/cellars/${cellarId}`],
+    enabled: !!cellarId,
+  });
+
   const { data: cellarSections = [], isLoading: sectionsLoading } = useQuery<CellarSection[]>({
     queryKey: [`/api/cellars/${cellarId}/sections`],
     enabled: !!cellarId,
   });
+
+  // Update local state when cellar data loads
+  useEffect(() => {
+    if (cellar) {
+      setColumnCount(cellar.columnCount || 5);
+      setRowCount(cellar.rowCount || 4);
+    }
+  }, [cellar]);
 
   const createCountryMutation = useMutation({
     mutationFn: async (countryData: InsertCountry) => {
@@ -114,17 +129,38 @@ export default function Settings() {
       return await apiRequest("PUT", `/api/cellar/sections/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/cellar/sections"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/sections`] });
       toast({
-        title: "Cellar updated",
+        title: "Section updated",
         description: "The cellar section has been updated successfully.",
       });
     },
     onError: () => {
       toast({
         title: "Error",
-        description: "Failed to update cellar section. Please try again.",
+        description: "Failed to update section. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateLayoutMutation = useMutation({
+    mutationFn: async ({ columnCount, rowCount }: { columnCount: number; rowCount: number }) => {
+      return await apiRequest("POST", `/api/cellars/${cellarId}/layout`, { columnCount, rowCount });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/sections`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/columns`] });
+      toast({
+        title: "Layout updated",
+        description: "Your cellar layout has been updated successfully. You may need to update wine positions.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update cellar layout. Please try again.",
         variant: "destructive",
       });
     },
@@ -180,6 +216,101 @@ export default function Settings() {
     });
   };
 
+  const handleUpdateLayout = () => {
+    if (columnCount < 1 || columnCount > 26 || rowCount < 1) {
+      toast({
+        title: "Invalid configuration",
+        description: "Columns must be between 1-26, rows must be at least 1.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateLayoutMutation.mutate({ columnCount, rowCount });
+  };
+
+  const renderLayoutConfiguration = () => (
+    <Card className="shadow-sm border border-gray-200 mb-6">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Layout className="w-5 h-5 mr-2" />
+          Layout Configuration
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4">
+          <p className="text-sm text-gray-600 mb-4">
+            Customize your cellar dimensions to match your physical setup. Columns are labeled A-Z, rows are numbered 1 to your specified count.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <Label htmlFor="column-count" className="text-sm font-medium">
+              Number of Columns (1-26)
+            </Label>
+            <Input
+              id="column-count"
+              type="number"
+              min="1"
+              max="26"
+              value={columnCount}
+              onChange={(e) => setColumnCount(parseInt(e.target.value) || 1)}
+              className="mt-2"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Current: {Array.from({ length: columnCount }, (_, i) => String.fromCharCode(65 + i)).join(', ')}
+            </p>
+          </div>
+          
+          <div>
+            <Label htmlFor="row-count" className="text-sm font-medium">
+              Number of Rows/Layers
+            </Label>
+            <Input
+              id="row-count"
+              type="number"
+              min="1"
+              value={rowCount}
+              onChange={(e) => setRowCount(parseInt(e.target.value) || 1)}
+              className="mt-2"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Rows: 1 (top) to {rowCount} (bottom)
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleUpdateLayout}
+            disabled={updateLayoutMutation.isPending}
+            className="bg-wine text-white hover:bg-wine-light"
+          >
+            {updateLayoutMutation.isPending ? "Updating..." : "Update Layout"}
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => {
+              setColumnCount(cellar?.columnCount || 5);
+              setRowCount(cellar?.rowCount || 4);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+        
+        {(columnCount !== (cellar?.columnCount || 5) || rowCount !== (cellar?.rowCount || 4)) && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              ⚠️ Warning: Changing layout will reset all section configurations and may affect existing wine positions.
+            </p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   const renderCellarDesigner = () => {
     const groupedSections = cellarSections.reduce((acc, section) => {
       if (!acc[section.column]) {
@@ -194,13 +325,13 @@ export default function Settings() {
         <CardHeader>
           <CardTitle className="flex items-center">
             <Layout className="w-5 h-5 mr-2" />
-            Cellar Layout Designer
+            Section Management
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
             <p className="text-sm text-gray-600 mb-4">
-              Design your cellar layout by enabling or disabling sections. Default layout: columns A-E with 4 layers (1=top, 4=bottom).
+              Enable or disable individual sections within your cellar layout. Disabled sections won't appear in the dashboard.
             </p>
           </div>
           
@@ -210,7 +341,7 @@ export default function Settings() {
             <div className="flex gap-4">
               {/* Layer numbers on the left */}
               <div className="flex flex-col justify-start pt-6">
-                {[1, 2, 3, 4].map((layer) => (
+                {Array.from({ length: rowCount }, (_, i) => i + 1).map((layer) => (
                   <div key={layer} className="h-16 flex items-center justify-center text-sm font-medium text-gray-500 mb-2">
                     {layer}
                   </div>
@@ -426,8 +557,15 @@ export default function Settings() {
       </div>
 
       {/* Settings Content */}
-      {activeTab === "countries" && renderCountryManager()}
-      {activeTab === "cellar" && renderCellarDesigner()}
+      <div className="space-y-6">
+        {activeTab === "countries" && renderCountryManager()}
+        {activeTab === "cellar" && (
+          <>
+            {renderLayoutConfiguration()}
+            {renderCellarDesigner()}
+          </>
+        )}
+      </div>
     </div>
   );
 }

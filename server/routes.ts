@@ -34,6 +34,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/cellars/:cellarId", isAuthenticated, async (req, res) => {
+    try {
+      const { cellarId } = req.params;
+      const cellar = await storage.getCellar(cellarId);
+      if (!cellar) {
+        return res.status(404).json({ error: "Cellar not found" });
+      }
+      res.json(cellar);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch cellar" });
+    }
+  });
+
   app.post("/api/cellars", isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
@@ -167,6 +180,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(sections);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cellar sections" });
+    }
+  });
+
+  // Update cellar layout configuration
+  app.post("/api/cellars/:cellarId/layout", isAuthenticated, async (req, res) => {
+    try {
+      const { cellarId } = req.params;
+      const { columnCount, rowCount } = req.body;
+      
+      // Validate input
+      if (!columnCount || !rowCount || columnCount < 1 || rowCount < 1 || columnCount > 26) {
+        return res.status(400).json({ error: "Invalid layout configuration. Columns must be between 1-26, rows must be at least 1." });
+      }
+      
+      await storage.updateCellarLayout(cellarId, columnCount, rowCount);
+      res.json({ message: "Cellar layout updated successfully" });
+    } catch (error) {
+      console.error("Error updating cellar layout:", error);
+      res.status(500).json({ error: "Failed to update cellar layout" });
     }
   });
 

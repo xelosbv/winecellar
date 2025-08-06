@@ -40,6 +40,7 @@ export interface IStorage {
   createCellarSection(section: InsertCellarSection): Promise<CellarSection>;
   updateCellarSection(id: string, section: Partial<InsertCellarSection>): Promise<CellarSection | undefined>;
   initializeCellarLayout(cellarId: string): Promise<void>;
+  updateCellarLayout(cellarId: string, columnCount: number, rowCount: number): Promise<void>;
   
   // Country operations
   getCountry(id: string): Promise<Country | undefined>;
@@ -110,7 +111,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCellar(id: string): Promise<boolean> {
     const result = await db.delete(cellars).where(eq(cellars.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   // Wine operations
@@ -146,7 +147,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteWine(id: string): Promise<boolean> {
     const result = await db.delete(wines).where(eq(wines.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   async searchWines(cellarId: string, query: string): Promise<Wine[]> {
@@ -227,15 +228,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async initializeCellarLayout(cellarId: string): Promise<void> {
-    // Initialize columns A-E
-    const columnLabels = ['A', 'B', 'C', 'D', 'E'];
+    // Get cellar configuration for dynamic layout
+    const cellar = await this.getCellar(cellarId);
+    if (!cellar) return;
+    
+    const columnCount = cellar.columnCount || 5;
+    const rowCount = cellar.rowCount || 4;
+    
+    // Generate column labels dynamically (A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z)
+    const columnLabels: string[] = [];
+    for (let i = 0; i < columnCount; i++) {
+      columnLabels.push(String.fromCharCode(65 + i)); // A=65, B=66, etc.
+    }
+    
+    // Create columns if they don't exist
     for (const label of columnLabels) {
       const existing = await this.getCellarColumn(cellarId, label);
       if (!existing) {
         await this.createCellarColumn({
           cellarId,
           label,
-          layers: 4,
+          layers: rowCount,
           isEnabled: 'true'
         });
       }
@@ -243,7 +256,7 @@ export class DatabaseStorage implements IStorage {
 
     // Initialize sections for each column and layer
     for (const column of columnLabels) {
-      for (let layer = 1; layer <= 4; layer++) {
+      for (let layer = 1; layer <= rowCount; layer++) {
         const existing = await this.getCellarSection(cellarId, column, layer);
         if (!existing) {
           await this.createCellarSection({
@@ -255,6 +268,18 @@ export class DatabaseStorage implements IStorage {
         }
       }
     }
+  }
+
+  async updateCellarLayout(cellarId: string, columnCount: number, rowCount: number): Promise<void> {
+    // Update cellar configuration
+    await this.updateCellar(cellarId, { columnCount, rowCount });
+    
+    // Clear existing layout
+    await db.delete(cellarColumns).where(eq(cellarColumns.cellarId, cellarId));
+    await db.delete(cellarSections).where(eq(cellarSections.cellarId, cellarId));
+    
+    // Reinitialize with new layout
+    await this.initializeCellarLayout(cellarId);
   }
 
   private async initializeCountries() {

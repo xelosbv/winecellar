@@ -158,9 +158,9 @@ export default function Home() {
             </Dialog>
           </div>
 
-          {cellars?.length > 0 ? (
+          {cellars && cellars.length > 0 ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {cellars.map((cellar) => (
+              {cellars?.map((cellar) => (
                 <Link key={cellar.id} href={`/cellar/${cellar.id}`}>
                   <Card className="cursor-pointer hover:shadow-lg transition-shadow border-wine-200 dark:border-wine-800 hover:border-wine-400 dark:hover:border-wine-600">
                     <CardHeader>
