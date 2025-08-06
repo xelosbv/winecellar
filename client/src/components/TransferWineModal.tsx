@@ -114,6 +114,15 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
   const onSubmit = (values: z.infer<typeof transferFormSchema>) => {
     if (!wine) return;
 
+    // Validate cellar selection
+    if (!values.toCellarId) {
+      form.setError("toCellarId", {
+        type: "required",
+        message: "Please select a destination cellar"
+      });
+      return;
+    }
+
     const quantity = transferAll ? wine.quantity : values.quantity;
     
     transferMutation.mutate({
@@ -179,11 +188,11 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
               name="toCellarId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Destination Cellar</FormLabel>
+                  <FormLabel>Destination Cellar *</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a cellar" />
+                        <SelectValue placeholder="Select destination cellar" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>

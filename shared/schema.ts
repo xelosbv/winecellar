@@ -170,7 +170,7 @@ export type CellarSection = typeof cellarSections.$inferSelect;
 // Transfer schema
 export const transferWineSchema = z.object({
   fromCellarId: z.string(),
-  toCellarId: z.string(),
+  toCellarId: z.string().min(1, "Please select a destination cellar"),
   wineId: z.string(),
   quantity: z.number().min(1),
   toColumn: z.string().optional(),
