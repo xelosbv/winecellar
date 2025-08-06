@@ -162,18 +162,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/cellars/:cellarId/wines", isAuthenticated, async (req, res) => {
     try {
       const { cellarId } = req.params;
-      console.log("Creating wine with data:", req.body);
       const validatedData = insertWineSchema.parse({ ...req.body, cellarId });
-      console.log("Validated data:", validatedData);
       const wine = await storage.createWine(validatedData);
       res.status(201).json(wine);
     } catch (error) {
-      console.error("Wine creation error:", error);
       if (error instanceof z.ZodError) {
-        console.error("Zod validation errors:", error.errors);
         return res.status(400).json({ error: "Invalid wine data", details: error.errors });
       }
-      res.status(500).json({ error: "Failed to create wine", details: error.message });
+      res.status(500).json({ error: "Failed to create wine" });
     }
   });
 

@@ -62,7 +62,16 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
 
   const addWineMutation = useMutation({
     mutationFn: async (data: InsertWine) => {
-      const response = await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
+      // Transform empty strings to null for numeric fields
+      const formattedData = {
+        ...data,
+        price: data.price || null,
+        year: data.year || null,
+        toDrinkFrom: data.toDrinkFrom || null,
+        toDrinkUntil: data.toDrinkUntil || null,
+        countryId: data.countryId || null,
+      };
+      const response = await apiRequest("POST", `/api/cellars/${cellarId}/wines`, formattedData);
       return await response.json();
     },
     onSuccess: () => {
