@@ -42,6 +42,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
   const form = useForm<InsertWine>({
     resolver: zodResolver(insertWineSchema),
     defaultValues: {
+      cellarId: cellarId,
       name: "",
       producer: "",
       year: undefined,
@@ -159,15 +160,32 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
   // Reset form when modal closes and update location when prefilled
   useEffect(() => {
     if (!isOpen) {
-      form.reset();
+      form.reset({
+        cellarId: cellarId,
+        name: "",
+        producer: "",
+        year: undefined,
+        type: "",
+        region: "",
+        countryId: "",
+        column: "",
+        layer: undefined,
+        price: "",
+        quantity: 1,
+        notes: "",
+      });
       setSearchQuery("");
       setSearchResults([]);
-    } else if (prefilledLocation) {
-      // Set the location fields when modal opens with prefilled location
-      form.setValue("column", prefilledLocation.column);
-      form.setValue("layer", prefilledLocation.layer);
+    } else {
+      // Ensure cellarId is always set when modal opens
+      form.setValue("cellarId", cellarId);
+      if (prefilledLocation) {
+        // Set the location fields when modal opens with prefilled location
+        form.setValue("column", prefilledLocation.column);
+        form.setValue("layer", prefilledLocation.layer);
+      }
     }
-  }, [isOpen, prefilledLocation, form]);
+  }, [isOpen, prefilledLocation, form, cellarId]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -178,6 +196,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Hidden cellarId field */}
+            <input type="hidden" {...form.register("cellarId")} />
             {/* Wine Search */}
             <div>
               <Label className="text-sm font-medium text-gray-700 mb-2">Search Wine Database</Label>
