@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Wine as WineType, insertWineSchema, Country } from "@shared/schema";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 import LocationGridSelector from "./LocationGridSelector";
@@ -85,6 +85,12 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       return await apiRequest("PUT", `/api/wines/${id}`, formattedData);
     },
     onSuccess: () => {
+      // Invalidate relevant cache queries to refresh the UI
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${wine.cellarId}/wines`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${wine.cellarId}/stats`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${wine.cellarId}/sections`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
+      
       toast({
         title: "Wine updated",
         description: "The wine has been successfully updated.",

@@ -50,6 +50,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/wines`] });
       queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/stats`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/sections`] });
       toast({
         title: "Wine deleted",
         description: "The wine has been removed from your collection.",

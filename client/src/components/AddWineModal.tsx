@@ -65,6 +65,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/wines`] });
       queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/stats`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/sections`] });
       toast({
         title: "Wine added successfully",
         description: "Your wine has been added to the collection.",
