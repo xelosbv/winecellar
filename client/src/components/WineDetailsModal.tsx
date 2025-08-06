@@ -93,16 +93,44 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
               </div>
             )}
 
-            {/* Location */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-gray-600" />
+            {/* Volume */}
+            {wine.volume && (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Package className="w-4 h-4 text-gray-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Volume</div>
+                  <div className="font-medium">{wine.volume}</div>
+                </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-500">Cellar Location</div>
-                <div className="font-medium">{wine.column}-{wine.layer}</div>
+            )}
+
+            {/* Drinking Window From */}
+            {wine.toDrinkFrom && (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-gray-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Drink From</div>
+                  <div className="font-medium">{wine.toDrinkFrom}</div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Drinking Window Until */}
+            {wine.toDrinkUntil && (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-gray-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Drink Until</div>
+                  <div className="font-medium">{wine.toDrinkUntil}</div>
+                </div>
+              </div>
+            )}
 
             {/* Quantity */}
             <div className="flex items-center gap-3">
