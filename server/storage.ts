@@ -126,6 +126,143 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
+  // Wine transfer operations
+  async transferWine(transfer: {
+    fromCellarId: string;
+    toCellarId: string;
+    wineId: string;
+    quantity: number;
+    toColumn?: string;
+    toRow?: number;
+    userId: string;
+  }): Promise<{ success: boolean; error?: string }> {
+    // Verify both cellars belong to the user
+    const fromCellar = await this.getCellar(transfer.fromCellarId);
+    const toCellar = await this.getCellar(transfer.toCellarId);
+
+    // Check if cellars belong to the user
+    if (fromCellar?.userId !== transfer.userId || toCellar?.userId !== transfer.userId) {
+      return { success: false, error: "One or both cellars not found or unauthorized" };
+    }
+
+    if (!fromCellar || !toCellar) {
+      return { success: false, error: "One or both cellars not found" };
+    }
+
+    // Get the wine to transfer
+    const [wine] = await db
+      .select()
+      .from(wines)
+      .where(and(eq(wines.id, transfer.wineId), eq(wines.cellarId, transfer.fromCellarId)));
+
+    if (!wine) {
+      return { success: false, error: "Wine not found in source cellar" };
+    }
+
+    if (wine.quantity < transfer.quantity) {
+      return { success: false, error: "Insufficient quantity available" };
+    }
+
+    // If transferring to a specific location, check if it's available
+    let targetColumn = transfer.toColumn;
+    let targetRow = transfer.toRow;
+
+    if (targetColumn && targetRow) {
+      const existingWine = await db
+        .select()
+        .from(wines)
+        .where(
+          and(
+            eq(wines.cellarId, transfer.toCellarId),
+            eq(wines.column, targetColumn),
+            eq(wines.layer, targetRow)
+          )
+        );
+
+      if (existingWine.length > 0) {
+        return { success: false, error: "Target location is already occupied" };
+      }
+    } else {
+      // Find an available location in the target cellar
+      const availableLocation = await this.findAvailableLocation(transfer.toCellarId);
+      if (!availableLocation) {
+        return { success: false, error: "No available locations in target cellar" };
+      }
+      targetColumn = availableLocation.column;
+      targetRow = availableLocation.layer;
+    }
+
+    // Perform the transfer
+    if (transfer.quantity === wine.quantity) {
+      // Transfer the entire wine
+      await db
+        .update(wines)
+        .set({
+          cellarId: transfer.toCellarId,
+          column: targetColumn,
+          layer: targetRow,
+        })
+        .where(eq(wines.id, transfer.wineId));
+    } else {
+      // Split the wine: reduce original quantity and create a new entry
+      await db
+        .update(wines)
+        .set({ quantity: wine.quantity - transfer.quantity })
+        .where(eq(wines.id, transfer.wineId));
+
+      await db.insert(wines).values({
+        cellarId: transfer.toCellarId,
+        name: wine.name,
+        producer: wine.producer,
+        year: wine.year,
+        type: wine.type,
+        region: wine.region,
+        countryId: wine.countryId,
+        column: targetColumn,
+        layer: targetRow,
+        price: wine.price,
+        quantity: transfer.quantity,
+        notes: wine.notes,
+      });
+    }
+
+    return { success: true };
+  }
+
+  private async findAvailableLocation(cellarId: string): Promise<{ column: string; layer: number } | null> {
+    // Get cellar configuration
+    const [cellar] = await db
+      .select()
+      .from(cellars)
+      .where(eq(cellars.id, cellarId));
+
+    if (!cellar) return null;
+
+    // Get all occupied locations
+    const occupiedLocations = await db
+      .select({ column: wines.column, layer: wines.layer })
+      .from(wines)
+      .where(eq(wines.cellarId, cellarId));
+
+    const occupiedSet = new Set(
+      occupiedLocations.map(loc => `${loc.column}-${loc.layer}`)
+    );
+
+    // Find first available location
+    for (let layerIndex = 1; layerIndex <= cellar.rowCount; layerIndex++) {
+      for (let colIndex = 0; colIndex < cellar.columnCount; colIndex++) {
+        const column = String.fromCharCode(65 + colIndex); // A, B, C, etc.
+        const locationKey = `${column}-${layerIndex}`;
+        
+        if (!occupiedSet.has(locationKey)) {
+          return { column, layer: layerIndex };
+        }
+      }
+    }
+
+    return null;
+  }
+
   // Wine operations
   async getWine(id: string): Promise<Wine | undefined> {
     const [wine] = await db.select().from(wines).where(eq(wines.id, id));

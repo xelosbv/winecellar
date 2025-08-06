@@ -5,12 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Wine as WineType } from "@shared/schema";
-import { Wine, Eye, Edit, Trash2, Filter, X, Search } from "lucide-react";
+import { Wine, Eye, Edit, Trash2, Filter, X, Search, ArrowRightLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import WineDetailsModal from "./WineDetailsModal";
 import EditWineModal from "./EditWineModal";
+import { TransferWineModal } from "./TransferWineModal";
 
 const wineTypeColors = {
   red: "bg-red-100 text-red-800",
@@ -34,6 +35,7 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [selectedWineForView, setSelectedWineForView] = useState<WineType | null>(null);
   const [selectedWineForEdit, setSelectedWineForEdit] = useState<WineType | null>(null);
+  const [selectedWineForTransfer, setSelectedWineForTransfer] = useState<WineType | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -310,6 +312,24 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       <Button 
                         variant="ghost" 
                         size="sm" 
+                        className="text-blue-400 hover:text-blue-600"
+                        onClick={() => setSelectedWineForTransfer(wine)}
+                        title="Transfer wine"
+                      >
+                        <ArrowRightLeft className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-blue-400 hover:text-blue-600"
+                        onClick={() => setSelectedWineForTransfer(wine)}
+                        title="Transfer wine"
+                      >
+                        <ArrowRightLeft className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
                         className="text-gray-400 hover:text-gray-600"
                         onClick={() => setSelectedWineForEdit(wine)}
                         title="Edit wine"
@@ -380,6 +400,16 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       >
                         <Eye className="w-4 h-4" />
                         <span className="ml-2 hidden lg:inline">View</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-blue-400 hover:text-blue-600"
+                        onClick={() => setSelectedWineForTransfer(wine)}
+                        title="Transfer wine"
+                      >
+                        <ArrowRightLeft className="w-4 h-4" />
+                        <span className="ml-2 hidden lg:inline">Transfer</span>
                       </Button>
                       <Button 
                         variant="ghost" 
@@ -495,6 +525,13 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
           }}
         />
       )}
+
+      {/* Transfer Wine Modal */}
+      <TransferWineModal 
+        wine={selectedWineForTransfer} 
+        isOpen={!!selectedWineForTransfer} 
+        onClose={() => setSelectedWineForTransfer(null)} 
+      />
     </Card>
   );
 }

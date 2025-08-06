@@ -167,6 +167,18 @@ export type CellarColumn = typeof cellarColumns.$inferSelect;
 export type InsertCellarSection = z.infer<typeof insertCellarSectionSchema>;
 export type CellarSection = typeof cellarSections.$inferSelect;
 
+// Transfer schema
+export const transferWineSchema = z.object({
+  fromCellarId: z.string(),
+  toCellarId: z.string(),
+  wineId: z.string(),
+  quantity: z.number().min(1),
+  toColumn: z.string().optional(),
+  toRow: z.number().optional(),
+});
+
+export type TransferWine = z.infer<typeof transferWineSchema>;
+
 // API response types for wine search
 export interface WineSearchResult {
   name: string;

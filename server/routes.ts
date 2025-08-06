@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertWineSchema, insertCellarSchema, insertCountrySchema, insertCellarSectionSchema } from "@shared/schema";
+import { insertWineSchema, insertCellarSchema, insertCountrySchema, insertCellarSectionSchema, transferWineSchema } from "@shared/schema";
 import { z } from "zod";
 import * as fs from "fs";
 import * as path from "path";
@@ -211,6 +211,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } catch (error) {
       res.status(500).json({ error: "Failed to delete wine" });
+    }
+  });
+
+  // Wine transfer route
+  app.post("/api/wines/transfer", isAuthenticated, async (req: any, res) => {
+    try {
+      const validatedData = transferWineSchema.parse(req.body);
+      const result = await storage.transferWine({
+        ...validatedData,
+        userId: req.user.claims.sub,
+      });
+      
+      if (!result.success) {
+        return res.status(400).json({ error: result.error });
+      }
+      
+      res.json({ success: true });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid transfer data", details: error.errors });
+      }
+      console.error("Transfer error:", error);
+      res.status(500).json({ error: "Failed to transfer wine" });
     }
   });
 
