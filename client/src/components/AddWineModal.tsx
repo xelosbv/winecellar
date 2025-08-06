@@ -59,7 +59,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
   const addWineMutation = useMutation({
     mutationFn: async (data: InsertWine) => {
       console.log("Adding wine with data:", data);
-      return await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
+      const response = await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
+      return await response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/cellars/${cellarId}/wines`] });
@@ -132,7 +133,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
         // Create new country
         try {
           const countryName = wine.country === 'US' ? 'United States' : wine.country;
-          const newCountry = await apiRequest("POST", "/api/countries", { name: countryName });
+          const response = await apiRequest("POST", "/api/countries", { name: countryName });
+          const newCountry = await response.json();
           if (newCountry && newCountry.id) {
             form.setValue("countryId", newCountry.id);
             // Refresh countries list
@@ -476,6 +478,11 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                 type="submit"
                 className="bg-wine text-white hover:bg-wine-light"
                 disabled={addWineMutation.isPending}
+                onClick={(e) => {
+                  console.log("Add Wine button clicked");
+                  console.log("Form valid:", form.formState.isValid);
+                  console.log("Form errors:", form.formState.errors);
+                }}
               >
                 {addWineMutation.isPending ? "Adding..." : "Add Wine"}
               </Button>
