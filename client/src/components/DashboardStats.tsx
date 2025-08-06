@@ -54,7 +54,7 @@ export default function DashboardStats({ cellarId }: DashboardStatsProps) {
   const statItems = [
     {
       icon: Wine,
-      label: "Wine Types",
+      label: "Different Wines",
       value: stats.totalWines,
       bgColor: "bg-wine/10",
       iconColor: "text-wine",
