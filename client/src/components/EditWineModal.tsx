@@ -48,6 +48,7 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       year: wine.year?.toString() || "",
       type: wine.type || "",
       region: wine.region || "",
+      grapes: wine.grapes || "",
       column: wine.column,
       layer: wine.layer,
       price: wine.price || "",
@@ -69,6 +70,7 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
       year: wine.year?.toString() || "",
       type: wine.type || "",
       region: wine.region || "",
+      grapes: wine.grapes || "",
       column: wine.column,
       layer: wine.layer,
       price: wine.price || "",
@@ -245,6 +247,21 @@ export default function EditWineModal({ wine, isOpen, onClose, onSuccess }: Edit
                     <FormLabel>Region</FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Bordeaux" {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Grapes */}
+              <FormField
+                control={form.control}
+                name="grapes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Grapes/Varietals</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Cabernet Sauvignon, Merlot" {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

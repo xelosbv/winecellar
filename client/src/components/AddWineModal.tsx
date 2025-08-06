@@ -50,6 +50,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       year: undefined,
       type: "",
       region: "",
+      grapes: "",
       countryId: "",
       column: prefilledLocation?.column || "",
       layer: prefilledLocation?.layer || undefined,
@@ -132,6 +133,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     if (wine.year) form.setValue("year", wine.year);
     if (wine.type) form.setValue("type", wine.type.toLowerCase());
     if (wine.region) form.setValue("region", wine.region);
+    if (wine.grapes) form.setValue("grapes", wine.grapes);
     if (wine.price) form.setValue("price", wine.price.toString());
     
     // Handle country mapping - find or create country
@@ -172,6 +174,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
     if (wineData.year) form.setValue("year", wineData.year);
     if (wineData.type) form.setValue("type", wineData.type.toLowerCase());
     if (wineData.region) form.setValue("region", wineData.region);
+    if (wineData.grapes) form.setValue("grapes", wineData.grapes);
     
     // Handle country mapping
     if (wineData.country) {
@@ -203,11 +206,15 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
         year: undefined,
         type: "",
         region: "",
+        grapes: "",
         countryId: "",
         column: "",
         layer: undefined,
         price: "",
         quantity: 1,
+        volume: "",
+        toDrinkFrom: undefined,
+        toDrinkUntil: undefined,
         notes: "",
       });
       setSearchQuery("");
@@ -489,6 +496,20 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
                     <FormLabel>Region</FormLabel>
                     <FormControl>
                       <Input {...field} value={field.value || ""} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="grapes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Grapes/Varietals</FormLabel>
+                    <FormControl>
+                      <Input {...field} value={field.value || ""} placeholder="e.g., Cabernet Sauvignon, Merlot" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

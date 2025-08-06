@@ -54,6 +54,7 @@ export const wines = pgTable("wines", {
   year: integer("year"),
   type: text("type").notNull(), // red, white, rosé, champagne, sparkling
   region: text("region"),
+  grapes: text("grapes"), // grape varietals, e.g., "Cabernet Sauvignon, Merlot"
   countryId: varchar("country_id").references(() => countries.id),
   column: text("column").notNull(), // A-F
   layer: integer("layer").notNull(), // 1-4

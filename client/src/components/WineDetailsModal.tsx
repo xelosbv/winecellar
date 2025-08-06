@@ -80,6 +80,19 @@ export default function WineDetailsModal({ wine, isOpen, onClose }: WineDetailsM
               </div>
             )}
 
+            {/* Grapes */}
+            {wine.grapes && (
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <Wine className="w-4 h-4 text-gray-600" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-500">Grapes/Varietals</div>
+                  <div className="font-medium">{wine.grapes}</div>
+                </div>
+              </div>
+            )}
+
             {/* Location */}
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">

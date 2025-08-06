@@ -101,7 +101,14 @@ export default function CameraCapture({ isOpen, onClose, onImageCapture, onAnaly
       const analysisResult = await response.json();
       
       if (analysisResult.success) {
-        onAnalysisComplete(analysisResult.wineData);
+        // Process grapes array into a string if it exists
+        const processedWineData = { 
+          ...analysisResult.wineData,
+          grapes: analysisResult.wineData?.grapes && Array.isArray(analysisResult.wineData.grapes) 
+            ? analysisResult.wineData.grapes.join(', ') 
+            : analysisResult.wineData?.grapes
+        };
+        onAnalysisComplete(processedWineData);
         toast({
           title: "Wine label recognized!",
           description: "Wine details have been automatically filled in.",

@@ -449,6 +449,10 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       </div>
                     </div>
                     <div>
+                      <div className="text-gray-500 text-xs font-medium mb-1">Grapes</div>
+                      <div className="text-gray-900 font-medium truncate">{wine.grapes || "N/A"}</div>
+                    </div>
+                    <div>
                       <div className="text-gray-500 text-xs font-medium mb-1">Country</div>
                       <div className="text-gray-900 font-medium truncate">{(wine as any).countryName || "N/A"}</div>
                     </div>
@@ -567,6 +571,11 @@ export default function WineTable({ cellarId, locationFilter, onClearLocationFil
                       <div className="text-center hidden xl:block">
                         <div className="text-gray-500 text-xs font-medium mb-1">Drink Until</div>
                         <div className="text-gray-900 font-medium">{wine.toDrinkUntil || "N/A"}</div>
+                      </div>
+                      
+                      <div className="text-center hidden lg:block">
+                        <div className="text-gray-500 text-xs font-medium mb-1">Grapes</div>
+                        <div className="text-gray-900 font-medium truncate max-w-24">{wine.grapes || "N/A"}</div>
                       </div>
                       
                       <div className="text-center hidden lg:block">

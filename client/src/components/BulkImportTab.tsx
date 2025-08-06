@@ -162,7 +162,11 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
       'to drink from': 'toDrinkFrom',
       'drink from': 'toDrinkFrom',
       'to drink until': 'toDrinkUntil',
-      'drink until': 'toDrinkUntil'
+      'drink until': 'toDrinkUntil',
+      'grapes': 'grapes',
+      'varietals': 'grapes',
+      'grape varieties': 'grapes',
+      'grape types': 'grapes'
     };
 
     const normalized = header.toLowerCase().trim();
@@ -230,12 +234,12 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
   const downloadTemplate = () => {
     const templateData = [
       [
-        'Name', 'Producer', 'Year', 'Type', 'Region', 'Country', 
+        'Name', 'Producer', 'Year', 'Type', 'Region', 'Grapes', 'Country', 
         'Column', 'Layer', 'Quantity', 'Volume', 'Price', 'Notes',
         'To Drink From', 'To Drink Until'
       ],
       [
-        'Chateau Margaux', 'Chateau Margaux', 2015, 'red', 'Margaux', 'France',
+        'Chateau Margaux', 'Chateau Margaux', 2015, 'red', 'Margaux', 'Cabernet Sauvignon, Merlot', 'France',
         'A', 1, 1, '75cl', 850, 'Excellent vintage from premier cru estate',
         2025, 2040
       ],
@@ -330,6 +334,7 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
                       <th className="px-3 py-2 text-left">Producer</th>
                       <th className="px-3 py-2 text-left">Year</th>
                       <th className="px-3 py-2 text-left">Type</th>
+                      <th className="px-3 py-2 text-left">Grapes</th>
                       <th className="px-3 py-2 text-left">Column</th>
                       <th className="px-3 py-2 text-left">Layer</th>
                     </tr>
@@ -341,6 +346,7 @@ export default function BulkImportTab({ cellarId }: BulkImportTabProps) {
                         <td className="px-3 py-2">{wine.producer || 'N/A'}</td>
                         <td className="px-3 py-2">{wine.year || 'N/A'}</td>
                         <td className="px-3 py-2">{wine.type || 'N/A'}</td>
+                        <td className="px-3 py-2">{wine.grapes || 'N/A'}</td>
                         <td className="px-3 py-2">{wine.column || 'N/A'}</td>
                         <td className="px-3 py-2">{wine.layer || 'N/A'}</td>
                       </tr>
