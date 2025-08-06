@@ -58,6 +58,7 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
 
   const addWineMutation = useMutation({
     mutationFn: async (data: InsertWine) => {
+      console.log("Adding wine with data:", data);
       return await apiRequest("POST", `/api/cellars/${cellarId}/wines`, data);
     },
     onSuccess: () => {
@@ -72,7 +73,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
       setSearchResults([]);
       onClose();
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Failed to add wine:", error);
       toast({
         title: "Error",
         description: "Failed to add wine. Please try again.",
@@ -130,11 +132,12 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
         // Create new country
         try {
           const countryName = wine.country === 'US' ? 'United States' : wine.country;
-          const response = await apiRequest("POST", "/api/countries", { name: countryName });
-          const newCountry = await response.json();
-          form.setValue("countryId", newCountry.id);
-          // Refresh countries list
-          queryClient.invalidateQueries({ queryKey: ["/api/countries"] });
+          const newCountry = await apiRequest("POST", "/api/countries", { name: countryName });
+          if (newCountry && newCountry.id) {
+            form.setValue("countryId", newCountry.id);
+            // Refresh countries list
+            queryClient.invalidateQueries({ queryKey: ["/api/countries"] });
+          }
         } catch (error) {
           console.warn("Could not create country:", wine.country);
         }
@@ -146,6 +149,8 @@ export default function AddWineModal({ cellarId, isOpen, onClose, prefilledLocat
   };
 
   const onSubmit = (data: InsertWine) => {
+    console.log("Form submitted with data:", data);
+    console.log("Form errors:", form.formState.errors);
     addWineMutation.mutate(data);
   };
 
