@@ -61,6 +61,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/cellars/:cellarId", isAuthenticated, async (req: any, res) => {
+    try {
+      const { cellarId } = req.params;
+      const userId = req.user.claims.sub;
+      
+      // Verify cellar ownership
+      const cellar = await storage.getCellar(cellarId);
+      if (!cellar || cellar.userId !== userId) {
+        return res.status(404).json({ error: "Cellar not found" });
+      }
+
+      const updateData = insertCellarSchema.omit({ userId: true }).partial().parse(req.body);
+      const updatedCellar = await storage.updateCellar(cellarId, updateData);
+      res.json(updatedCellar);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ error: "Invalid cellar data", details: error.errors });
+      }
+      res.status(500).json({ error: "Failed to update cellar" });
+    }
+  });
+
+  app.post("/api/cellars/reorder", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { cellars: cellarOrders } = req.body;
+      
+      if (!Array.isArray(cellarOrders)) {
+        return res.status(400).json({ error: "Invalid data format" });
+      }
+
+      await storage.updateCellarsOrder(userId, cellarOrders);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update cellar order" });
+    }
+  });
+
   // Wine routes (now cellar-specific)
   app.get("/api/cellars/:cellarId/wines", isAuthenticated, async (req, res) => {
     try {

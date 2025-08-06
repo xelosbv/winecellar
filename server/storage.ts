@@ -18,6 +18,7 @@ export interface IStorage {
   createCellar(cellar: InsertCellar): Promise<Cellar>;
   updateCellar(id: string, cellar: Partial<InsertCellar>): Promise<Cellar | undefined>;
   deleteCellar(id: string): Promise<boolean>;
+  updateCellarsOrder(userId: string, cellarOrders: Array<{ id: string; order: number }>): Promise<void>;
   
   // Wine operations  
   getWine(id: string): Promise<Wine | undefined>;
@@ -90,7 +91,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserCellars(userId: string): Promise<Cellar[]> {
-    return await db.select().from(cellars).where(eq(cellars.userId, userId));
+    return await db.select().from(cellars)
+      .where(eq(cellars.userId, userId))
+      .orderBy(cellars.displayOrder, cellars.createdAt);
   }
 
   async createCellar(cellar: InsertCellar): Promise<Cellar> {
@@ -112,6 +115,15 @@ export class DatabaseStorage implements IStorage {
   async deleteCellar(id: string): Promise<boolean> {
     const result = await db.delete(cellars).where(eq(cellars.id, id));
     return (result.rowCount || 0) > 0;
+  }
+
+  async updateCellarsOrder(userId: string, cellarOrders: Array<{ id: string; order: number }>): Promise<void> {
+    for (const { id, order } of cellarOrders) {
+      await db
+        .update(cellars)
+        .set({ displayOrder: order, updatedAt: new Date() })
+        .where(and(eq(cellars.id, id), eq(cellars.userId, userId)));
+    }
   }
 
   // Wine operations

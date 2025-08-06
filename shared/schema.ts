@@ -35,6 +35,7 @@ export const cellars = pgTable("cellars", {
   description: text("description"),
   columnCount: integer("column_count").notNull().default(5), // Number of columns (A, B, C, etc.)
   rowCount: integer("row_count").notNull().default(4), // Number of layers/rows
+  displayOrder: integer("display_order").notNull().default(0), // Order for displaying cellars
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
