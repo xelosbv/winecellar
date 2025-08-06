@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +33,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRightLeft, Wine as WineIcon } from "lucide-react";
+import LocationGridSelector from "./LocationGridSelector";
 
 const transferFormSchema = transferWineSchema.omit({ fromCellarId: true, wineId: true });
 
@@ -46,6 +47,7 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [transferAll, setTransferAll] = useState(false);
+  const [selectedDestinationLocation, setSelectedDestinationLocation] = useState<{column: string, layer: number} | null>(null);
 
   // Fetch all user cellars
   const { data: cellars = [] } = useQuery<Cellar[]>({
@@ -62,9 +64,26 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
       toCellarId: "",
       quantity: 1,
       toColumn: "",
-      toLayer: "",
+      toLayer: 1,
     },
   });
+
+  // Watch the selected destination cellar to reset location when it changes
+  const selectedDestinationCellarId = form.watch("toCellarId");
+
+  // Reset location selection when destination cellar changes
+  useEffect(() => {
+    setSelectedDestinationLocation(null);
+    form.setValue("toColumn", "");
+    form.setValue("toLayer", 1);
+  }, [selectedDestinationCellarId, form]);
+
+  // Update form values when location is selected
+  const handleLocationSelect = (column: string, layer: number) => {
+    setSelectedDestinationLocation({ column, layer });
+    form.setValue("toColumn", column);
+    form.setValue("toLayer", layer);
+  };
 
   const transferMutation = useMutation({
     mutationFn: async (data: z.infer<typeof transferWineSchema>) => {
@@ -139,6 +158,7 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
     onClose();
     form.reset();
     setTransferAll(false);
+    setSelectedDestinationLocation(null);
   };
 
   // Update quantity when transferAll changes
@@ -155,7 +175,7 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRightLeft className="h-5 w-5" />
@@ -246,45 +266,48 @@ export function TransferWineModal({ wine, isOpen, onClose }: TransferWineModalPr
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="toColumn"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Column (Optional)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="A, B, C..." {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+            {/* Location Selection for Destination Cellar */}
+            {selectedDestinationCellarId && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <FormLabel className="text-sm font-medium">
+                    Select Destination Location (Optional)
+                  </FormLabel>
+                  {selectedDestinationLocation && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedDestinationLocation(null);
+                        form.setValue("toColumn", "");
+                        form.setValue("toLayer", 1);
+                      }}
+                    >
+                      Clear Location
+                    </Button>
+                  )}
+                </div>
+                
+                <LocationGridSelector
+                  cellarId={selectedDestinationCellarId}
+                  selectedColumn={selectedDestinationLocation?.column}
+                  selectedLayer={selectedDestinationLocation?.layer}
+                  onLocationSelect={handleLocationSelect}
+                  className="max-h-64 overflow-y-auto"
+                />
+                
+                {selectedDestinationLocation && (
+                  <p className="text-sm text-wine-600 dark:text-wine-400">
+                    Selected location: Column {selectedDestinationLocation.column}, Layer {selectedDestinationLocation.layer}
+                  </p>
                 )}
-              />
-
-              <FormField
-                control={form.control}
-                name="toRow"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Row (Optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        placeholder="1, 2, 3..."
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <p className="text-xs text-wine-600 dark:text-wine-400">
-              If no location is specified, the wine will be placed in the first available spot.
-            </p>
+                
+                <p className="text-xs text-wine-600 dark:text-wine-400">
+                  If no location is selected, the wine will be placed in the first available spot.
+                </p>
+              </div>
+            )}
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleClose}>
