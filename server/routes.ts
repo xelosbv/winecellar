@@ -266,7 +266,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/wines/:id", isAuthenticated, async (req, res) => {
+  app.delete("/api/cellars/:cellarId/wines/:id", isAuthenticated, async (req, res) => {
     try {
       const deleted = await storage.deleteWine(req.params.id);
       if (!deleted) {
